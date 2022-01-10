@@ -27,10 +27,8 @@ dependencies:
   - openff-recharge
   - openeye-toolkits
   - pytest
-  - pytest-timeout
-  - codecov
-  - pytest-cov
   - pytest-xdist
+  - pytest-randomly
   - nbval
   - conda
   - qcportal
@@ -54,4 +52,5 @@ dependencies:
   - flake8
   - snakeviz
   - pip:
-    - git+https://github.com/openforcefield/openff-interchange.git
+    - git+https://github.com/openforcefield/openff-toolkit.git@topology-biopolymer-refactor
+    - git+https://github.com/openforcefield/openff-interchange.git@topology-refactor
