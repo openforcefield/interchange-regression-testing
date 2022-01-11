@@ -4,8 +4,14 @@ import openmm
 import pytest
 from openff.interchange.components.interchange import Interchange
 from openff.toolkit.topology.molecule import Molecule
-from openff.toolkit.typing.engines.smirnoff import ForceField
+from openff.toolkit.typing.engines.smirnoff import (
+    ElectrostaticsHandler,
+    ForceField,
+    LibraryChargeHandler,
+    vdWHandler,
+)
 from openff.units import unit
+from openmm import unit as openmm_unit
 
 
 @pytest.fixture
@@ -78,3 +84,47 @@ def test_nonstandard_vdw_cutoff(topology, force_field):
             break
     else:
         raise ValueError("No nonbonded force found in the system")
+
+
+def test_nondefault_nonbonded_cutoff(topology):
+
+    topology = Molecule.from_smiles("[#18]").to_topology()
+    topology.box_vectors = [3, 3, 3] * unit.nanometer
+
+    force_field = ForceField()
+
+    vdw_handler = vdWHandler(version=0.3)
+    vdw_handler.method = "cutoff"
+    vdw_handler.cutoff = 7.89 * unit.angstrom
+    vdw_handler.scale14 = 1.0
+
+    vdw_handler.add_parameter(
+        {
+            "smirks": "[#18:1]",
+            "epsilon": 1.0 * unit.kilojoules_per_mole,
+            "sigma": 1.0 * unit.angstrom,
+        }
+    )
+    force_field.register_parameter_handler(vdw_handler)
+
+    electrostatics_handler = ElectrostaticsHandler(version=0.3)
+    electrostatics_handler.cutoff = 7.89 * unit.angstrom
+    electrostatics_handler.method = "PME"
+    force_field.register_parameter_handler(electrostatics_handler)
+
+    library_charges = LibraryChargeHandler(version=0.3)
+    library_charges.add_parameter(
+        {
+            "smirks": "[#18:1]",
+            "charge1": 0.0 * unit.elementary_charge,
+        }
+    )
+    force_field.register_parameter_handler(library_charges)
+
+    system = force_field.create_openmm_system(topology)
+
+    found_cutoff = (
+        system.getForce(0).getCutoffDistance().value_in_unit(openmm_unit.angstrom)
+    )
+
+    assert abs(found_cutoff - 7.89) < 1e-6

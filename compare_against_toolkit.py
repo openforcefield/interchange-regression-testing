@@ -42,4 +42,4 @@ for oemol in input_stream.GetOEMols():
     system_energy = get_openmm_energies(interchange, combine_nonbonded_forces=True)
 
     energy_difference = system_energy - toolkit_energy
-    print(dict((k, v.m) for k, v in energy_difference.items()))
+    print({k: v.m for k, v in energy_difference.items()})
