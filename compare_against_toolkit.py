@@ -1,22 +1,31 @@
+import pandas as pd
 from openeye import oechem
 from openff.interchange.components.interchange import Interchange
 from openff.interchange.drivers.openmm import _get_openmm_energies, get_openmm_energies
 from openff.toolkit.topology import Molecule
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
-from openmm import unit as openmm_unit
+from openff.units.openmm import to_openmm
 
 kj_mol = unit.kilojoule / unit.mol
 force_field = ForceField("openff-1.0.0.offxml")
-box_vectors = openmm_unit.Quantity(
-    [[4, 0, 0], [0, 4, 0], [0, 0, 4]], unit=openmm_unit.nanometer
-)
+box_vectors = unit.Quantity([[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer)
+
+
+def _write_csv(dataframe: pd.DataFrame):
+    final = energies.set_index("SMILES")
+    final.to_csv("data.csv")
+
 
 input_stream = oechem.oemolistream()
 
 input_stream.open("NCI-molecules.sdf")
 
-for oemol in input_stream.GetOEMols():
+
+energies = pd.DataFrame(columns=["Bond", "Angle", "Torsion", "Nonbonded", "SMILES"])
+
+for i, oemol in enumerate(input_stream.GetOEMols()):
+
     molecule = Molecule.from_openeye(oemol, allow_undefined_stereo=True)
     try:
         molecule.generate_conformers(n_conformers=1)
@@ -34,12 +43,22 @@ for oemol in input_stream.GetOEMols():
         continue
 
     toolkit_energy = _get_openmm_energies(
-        toolkit_system, box_vectors=box_vectors, positions=molecule.conformers[0]
+        toolkit_system,
+        box_vectors=to_openmm(box_vectors),
+        positions=to_openmm(molecule.conformers[0]),
     )
 
     interchange = Interchange.from_smirnoff(force_field=force_field, topology=topology)
     interchange.positions = molecule.conformers[0]
+    # import ipdb; ipdb.set_trace()
     system_energy = get_openmm_energies(interchange, combine_nonbonded_forces=True)
 
     energy_difference = system_energy - toolkit_energy
-    print({k: v.m for k, v in energy_difference.items()})
+    row = pd.DataFrame.from_dict({k: [v.m] for k, v in energy_difference.items()})
+    row["SMILES"] = molecule.to_smiles()
+    energies = energies.append(row)
+
+    if i % 100 == 0:
+        _write_csv(energies)
+
+_write_csv(energies)
