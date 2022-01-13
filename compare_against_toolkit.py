@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 from openeye import oechem
 from openff.interchange.components.interchange import Interchange
@@ -21,16 +23,23 @@ input_stream = oechem.oemolistream()
 
 input_stream.open("NCI-molecules.sdf")
 
-
-energies = pd.DataFrame(columns=["Bond", "Angle", "Torsion", "Nonbonded", "SMILES"])
+if Path("data.csv").is_file():
+    energies = pd.read_csv("data.csv")
+else:
+    energies = pd.DataFrame(columns=["Bond", "Angle", "Torsion", "Nonbonded", "SMILES"])
 
 for i, oemol in enumerate(input_stream.GetOEMols()):
 
     molecule = Molecule.from_openeye(oemol, allow_undefined_stereo=True)
+
     try:
-        molecule.generate_conformers(n_conformers=1)
-    except Exception as e:
-        print(f"Molecule {molecule.to_smiles()} raised exception {type(e)}")
+        smiles = molecule.to_smiles()
+    except:
+        print("Molecule.to_molecule() fails on this molecule")
+        continue
+
+    if smiles in energies["SMILES"].values:
+        print("Molecule with following SMILES already found in data.csv:" f"\t{smiles}")
         continue
 
     topology = molecule.to_topology()
