@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
   - openeye
+  - simonboothroyd
 dependencies:
   # Core
   - python >=3.8
@@ -33,6 +34,8 @@ dependencies:
   - conda
   - qcportal
   - openff-qcsubmit
+  - deepdiff
+  - nonbonded
   # Drivers
   - gromacs >=2021
   - lammps
@@ -45,6 +48,7 @@ dependencies:
   - pandas-stubs
   # Development tools
   - mamba
+  - conda-tree
   - jupyterlab
   - ipdb
   - black
@@ -53,4 +57,5 @@ dependencies:
   - snakeviz
   - pip:
     - git+https://github.com/openforcefield/openff-toolkit.git@topology-biopolymer-refactor
+    - git+https://github.com/openforcefield/openff-evaluator.git@toolkit-refactor
     - git+https://github.com/openforcefield/openff-interchange.git@topology-refactor
