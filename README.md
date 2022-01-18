@@ -1,16 +1,14 @@
 # interchange-regression-testing
 Regression testing Interchange's OpenMM export against the OpenFF Toolkit
 
-To test against the NCI dataset, run something like
-```shell
+To test against the Industry Benchmarking Season 1 v1.0 dataset, run something like
 $ conda env create --file dev_env.yaml --quiet
 $ conda activate interchange-regression-testing
-$ curl https://cactus.nci.nih.gov/download/nci/NCI-Open_2012-05-01.sdf.gz --output NCI-molecules.sdf.gz
-$ gunzip NCI-molecules.sdf.gz
+$ wget https://raw.githubusercontent.com/openforcefield/qca-dataset-submission/master/submissions/2021-03-30-OpenFF-Industry-Benchmark-Season-1-v1.0/dataset.smi
 $ python compare-against-toolkit.py
 ```
 
-This will take several hours and produce a large file `data.csv` with per-component potential energy
+This will take a few to several hours and produce a large file `data.csv` with per-component potential energy
 differences between the `openmm.System` objects produced by `ForceField.create_openmm_system` and
 `Interchange.to_openmm`. These can be read up in Python with
 
