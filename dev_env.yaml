@@ -1,4 +1,4 @@
-name: interchange-regression-testing
+name: candidate-env
 channels:
   - conda-forge
   - bioconda

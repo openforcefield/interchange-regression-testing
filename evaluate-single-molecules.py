@@ -1,17 +1,24 @@
+import urllib
 from multiprocessing import Pool, cpu_count
+from pathlib import Path
 
 import pandas as pd
 import tqdm
-from openff.interchange.components.interchange import Interchange
-from openff.interchange.drivers.openmm import _get_openmm_energies, get_openmm_energies
+from openff.interchange.drivers.openmm import _get_openmm_energies
+from openff.toolkit import __version__
 from openff.toolkit.topology import Molecule
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
 from openff.units.openmm import to_openmm
 
-kj_mol = unit.kilojoule / unit.mol
-force_field = ForceField("openff-1.0.0.offxml")
 box_vectors = unit.Quantity([[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer)
+
+if __version__ == "0.10.2":
+    kj_mol = unit.kilojoule / unit.mol
+    force_field = ForceField("openff-1.0.0.offxml")
+else:
+    kj_mol = unit.kilojoule / unit.mol
+    force_field = ForceField("openff-1.0.0.offxml")
 
 
 def _write_csv(dataframe: pd.DataFrame, file_name: str = "data.csv"):
@@ -37,7 +44,13 @@ def get_energies_single_molecule(
         molecule.generate_conformers(n_conformers=1)
 
     topology = molecule.to_topology()
-    topology.box_vectors = box_vectors
+
+    if __version__ == "0.10.2":
+        positions = molecule.conformers[0]
+        topology.box_vectors = to_openmm(box_vectors)
+    else:
+        positions = to_openmm(molecule.conformers[0])
+        topology.box_vectors = box_vectors
 
     try:
         toolkit_system = force_field.create_openmm_system(topology)
@@ -48,22 +61,26 @@ def get_energies_single_molecule(
     toolkit_energy = _get_openmm_energies(
         toolkit_system,
         box_vectors=to_openmm(box_vectors),
-        positions=to_openmm(molecule.conformers[0]),
+        positions=positions,
     )
 
-    interchange = Interchange.from_smirnoff(force_field=force_field, topology=topology)
-    interchange.positions = molecule.conformers[0]
-    # import ipdb; ipdb.set_trace()
-    system_energy = get_openmm_energies(interchange, combine_nonbonded_forces=True)
-
-    energy_difference = system_energy - toolkit_energy
-    row = pd.DataFrame.from_dict({k: [v.m] for k, v in energy_difference.items()})
+    row = pd.DataFrame.from_dict({k: [v.m] for k, v in toolkit_energy.energies.items()})
     row["SMILES"] = molecule.to_smiles()
     return row
 
 
 if __name__ == "__main__":
-    molecules = Molecule.from_file("dataset.smi", allow_undefined_stereo=True)
+    Path("data/single-molecules/").mkdir(parents=True, exist_ok=True)
+    Path(f"results/toolkit-v{__version__}/").mkdir(parents=True, exist_ok=True)
+
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/openforcefield/qca-dataset-submission/master/submissions/2021-03-30-OpenFF-Industry-Benchmark-Season-1-v1.0/dataset.smi",
+        "data/single-molecules/dataset.smi",
+    )
+
+    molecules = Molecule.from_file(
+        "data/single-molecules/dataset.smi", allow_undefined_stereo=True
+    )
 
     energies = pd.DataFrame(columns=["Bond", "Angle", "Torsion", "Nonbonded", "SMILES"])
 
@@ -75,4 +92,7 @@ if __name__ == "__main__":
         ):
             energies = energies.append(row)
 
-    _write_csv(energies)
+    _write_csv(
+        energies,
+        file_name=f"results/toolkit-v{__version__}/single-molecule-energies.csv",
+    )
