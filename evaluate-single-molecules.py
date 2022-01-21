@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     energies = pd.DataFrame(columns=["Bond", "Angle", "Torsion", "Nonbonded", "SMILES"])
 
-    with Pool(processes=int(1.5 * cpu_count())) as pool:
+    with Pool(processes=int(cpu_count() * 1.2)) as pool:
 
         for row in tqdm.tqdm(
             pool.imap_unordered(get_energies_single_molecule, molecules),
