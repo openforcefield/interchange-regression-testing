@@ -1,7 +1,13 @@
+"""
+Evaluate gas-phase systems (`openmm.System`) corresponding to entires
+in molecule data sets.
+"""
+import logging
 import urllib
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
+import multiprocessing_logging
 import pandas as pd
 import tqdm
 from openff.interchange.drivers.openmm import _get_openmm_energies
@@ -10,6 +16,12 @@ from openff.toolkit.topology import Molecule
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
 from openff.units.openmm import to_openmm
+
+logging.basicConfig(
+    filename=f"toolkit-v{__version__}-gas.log", encoding="utf-8", level=logging.INFO
+)
+
+multiprocessing_logging.install_mp_handler()
 
 box_vectors = unit.Quantity([[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer)
 
@@ -33,9 +45,10 @@ def get_energies_single_molecule(
     try:
         molecule.to_smiles()
     except:
-        print("Molecule.to_molecule() fails on this molecule")
+        logging.info("Molecule.to_molecule() fails on this molecule")
         return
 
+    logging.info(f"Starting molecule {molecule.to_smiles}")
     # if smiles in energies["SMILES"].values:
     #     print("Molecule with following SMILES already found in data.csv:" f"\t{smiles}")
     #     return
@@ -55,7 +68,7 @@ def get_energies_single_molecule(
     try:
         toolkit_system = force_field.create_openmm_system(topology)
     except Exception as e:
-        print(f"Molecule {molecule.to_smiles()} raised exception {type(e)}")
+        logging.info(f"Molecule {molecule.to_smiles()} raised exception {type(e)}")
         return
 
     toolkit_energy = _get_openmm_energies(
