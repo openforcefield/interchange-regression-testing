@@ -22,7 +22,7 @@ from openff.interchange.drivers.openmm import _get_openmm_energies
 from openff.toolkit import __version__
 from openff.toolkit.topology import Molecule, Topology
 from openff.toolkit.typing.engines.smirnoff import ForceField
-from openmm import System, app
+from openmm import OpenMMException, System, app
 
 logging.basicConfig(
     filename=f"toolkit-v{__version__}-condensed.log",
@@ -34,7 +34,7 @@ multiprocessing_logging.install_mp_handler()
 
 
 def _write_csv(dataframe: pd.DataFrame, file_name: str = "data.csv"):
-    final = energies.set_index("SMILES")
+    final = energies.set_index("Identifier")
     final.to_csv(file_name)
 
 
@@ -47,8 +47,9 @@ def _generate_system_from_substance(substance: Substance) -> Tuple[str, System]:
     build_coordinates.substance = substance
     try:
         build_coordinates.execute("build-coords")
-    except:
-        logging.info(f"packing failed on {str(substance)}")
+        logging.info(f"packing suceeded on {str(substance)}")
+    except Exception as e:
+        logging.info(f"packing failed on {str(substance)} with exception {str(e)}")
         return
 
     logging.info(f"done packing {str(substance)}")
@@ -61,8 +62,11 @@ def _generate_system_from_substance(substance: Substance) -> Tuple[str, System]:
     apply_parameters.substance = substance
     try:
         apply_parameters.execute("apply-params")
-    except:
-        logging.info(f"parameterizing failed on {str(substance)}")
+        logging.info(f"parameterizing succeeded on {str(substance)}")
+    except Exception as e:
+        logging.info(
+            f"parameterizing failed on {str(substance)} with exception {str(e)}"
+        )
         return
 
     logging.info(f"done typing {str(substance)}")
@@ -110,20 +114,31 @@ def get_energies_condensed_phase(substance: Substance) -> pd.DataFrame:
 
     logging.info(f"running openmm {str(substance)}")
 
-    toolkit_energy = _get_openmm_energies(
-        system,
-        box_vectors=pdb_file.topology.getPeriodicBoxVectors(),
-        positions=pdb_file.getPositions(),
-    )
+    try:
+        toolkit_energy = _get_openmm_energies(
+            system,
+            box_vectors=pdb_file.topology.getPeriodicBoxVectors(),
+            positions=pdb_file.getPositions(),
+        )
+    except OpenMMException:
+        logging.info(
+            "failed trying to run OpenMM energy evaluation, might have been something to do "
+            "with mismatches in number of particles. The System is has "
+            f"{system.getNumParticles()} particles and the topology's positions hav shape "
+            f"{pdb_file.getPositions(asNumpy=True).shape}"
+        )
+        return
 
     row = pd.DataFrame.from_dict({k: [v.m] for k, v in toolkit_energy.energies.items()})
-    row["Identifier"] = substance.identifier
+    row["Identifier"] = str(substance.identifier)
+    print(row)
     return row
 
 
 if __name__ == "__main__":
+
     Path("data/condensed-phase-systems/").mkdir(parents=True, exist_ok=True)
-    Path(f"results/toolkit-v{__version__}/").mkdir(parents=True, exist_ok=True)
+    Path(f"results/condensed-phase-systems/").mkdir(parents=True, exist_ok=True)
 
     urllib.request.urlretrieve(
         "https://raw.githubusercontent.com/openforcefield/openff-sage/main/data-set-curation/physical-property/optimizations/data-sets/sage-train-v1.json",
@@ -143,8 +158,19 @@ if __name__ == "__main__":
 
     substances = data_set.substances
 
-    energies = pd.DataFrame(columns=["Bond", "Angle", "Torsion", "Nonbonded", "SMILES"])
+    energies = pd.DataFrame(
+        columns=["Bond", "Angle", "Torsion", "Nonbonded", "Identifier"]
+    )
 
+    for substance in substances:
+        row = get_energies_condensed_phase(substance)
+        energies = energies.append(row)
+        _write_csv(
+            energies,
+            file_name=f"tmp-{__version__}.csv",
+        )
+
+    """
     with Pool(processes=cpu_count()) as pool:
 
         for row in tqdm.tqdm(
@@ -152,8 +178,13 @@ if __name__ == "__main__":
             total=len(substances),
         ):
             energies = energies.append(row)
+            _write_csv(
+                energies,
+                file_name=f"tmp.csv",
+            )
+    """
 
     _write_csv(
         energies,
-        file_name=f"results/toolkit-v{__version__}/condensed-phase-systems.csv",
+        file_name=f"results/condensed-phase-systems/toolkit-v{__version__}.csv",
     )
