@@ -19,7 +19,9 @@ from openff.units.openmm import to_openmm
 from openmm import XmlSerializer
 
 logging.basicConfig(
-    filename=f"toolkit-v{__version__}-gas.log", encoding="utf-8", level=logging.INFO
+    filename=f"toolkit-v{__version__}-gas-serialize.log",
+    encoding="utf-8",
+    level=logging.INFO,
 )
 
 multiprocessing_logging.install_mp_handler()
