@@ -15,18 +15,19 @@ from openff.toolkit import __version__
 from openff.toolkit.topology import Molecule
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
-from openff.units.openmm import to_openmm
 from openmm import XmlSerializer
 
 logging.basicConfig(
-    filename=f"toolkit-v{__version__}-gas-serialize.log",
+    filename=f"toolkit-v{__version__}-direct-serialize.log",
     encoding="utf-8",
     level=logging.INFO,
 )
 
 multiprocessing_logging.install_mp_handler()
 
-box_vectors = unit.Quantity([[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer)
+box_vectors = unit.Quantity(
+    [[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer
+)
 
 force_field = ForceField("openff-1.0.0.offxml")
 
@@ -46,7 +47,7 @@ def serialize_system_from_molecule(
 
         now = time.time()
         while not finished:
-            if time.time() - now > 1:
+            if time.time() - now > 1000:
                 raise TimeoutError
             time.sleep(0.5)
 
@@ -56,37 +57,41 @@ def serialize_system_from_molecule(
 
     logging.info(f"Starting molecule {index}")
 
-#     if molecule.n_conformers == 0:
-#         molecule.generate_conformers(n_conformers=1)
-#         logging.info(f"Generated conformers for molecule {index}")
-
     topology = molecule.to_topology()
-
-    if __version__ == "0.10.2":
-        topology.box_vectors = to_openmm(box_vectors)
-    else:
-        topology.box_vectors = box_vectors
+    topology.box_vectors = box_vectors
 
     try:
         timer_thread.start()
-        toolkit_system = force_field.create_openmm_system(topology)
-        logging.info(f"Generated OpenMM System for molecule {index}")
+        for use_interchange in [True, False]:
+            toolkit_system = force_field.create_openmm_system(
+                topology, use_interchange=use_interchange
+            )
+            logging.info(
+                f"Generated OpenMM System for molecule {index}, "
+                f"use_interchange={use_interchange}"
+            )
+            with open(
+                f"results/single-molecules/toolkit-v{__version__}/systems-{use_interchange}/{index}.xml",
+                "w",
+            ) as f:
+                f.write(XmlSerializer.serialize(toolkit_system))
+
     except Exception as e:
-        logging.info(f"Molecule {molecule.to_smiles()} raised exception {type(e)}")
+        logging.info(
+            f"Molecule {molecule.to_smiles()} raised exception {type(e)}"
+        )
         timer_thread.join()
         return
-
-    with open(
-        f"results/single-molecules/toolkit-v{__version__}/systems/{index}.xml", "w"
-    ) as f:
-        f.write(XmlSerializer.serialize(toolkit_system))
 
     return
 
 
 if __name__ == "__main__":
     Path("data/single-molecules/").mkdir(parents=True, exist_ok=True)
-    Path(f"results/single-molecules/toolkit-v{__version__}/systems/").mkdir(
+    Path(f"results/single-molecules/toolkit-v{__version__}/systems-True/").mkdir(
+        parents=True, exist_ok=True
+    )
+    Path(f"results/single-molecules/toolkit-v{__version__}/systems-False/").mkdir(
         parents=True, exist_ok=True
     )
 
@@ -97,10 +102,12 @@ if __name__ == "__main__":
 
     molecules = Molecule.from_file(
         "data/single-molecules/dataset.smi", allow_undefined_stereo=True
+        # "dataset.smi", allow_undefined_stereo=True
     )
 
     indices: Dict[str, str] = {
-        f"{index:05}": molecule.to_smiles() for index, molecule in enumerate(molecules)
+        f"{index:05}": molecule.to_smiles()
+        for index, molecule in enumerate(molecules)
     }
 
     args_dict: Dict[str, Molecule] = {
