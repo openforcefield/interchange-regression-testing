@@ -42,19 +42,37 @@ def _write_csv(dataframe: pd.DataFrame, file_name: str = "data.csv"):
 def get_energies_single_molecule(
     molecule: Molecule,
 ) -> pd.DataFrame:
+    # Idea: Start a new thread as a timekeeper, periodically check if while inside
+    # this function call the time has exceeded a timeout, raise an exception
+    import threading
+
+    def timer_function():
+        import time
+
+        now = time.time()
+        while not finished:
+            if time.time() - now > 1000:
+                raise TimeoutError
+            time.sleep(0.5)
+
+    finished = False
+
+    timer_thread = threading.Thread(target=timer_function)
+
     try:
-        molecule.to_smiles()
+        smiles = molecule.to_smiles()
     except:
-        logging.info("Molecule.to_molecule() fails on this molecule")
+        logging.info("Molecule.to_smiles() fails on this molecule")
         return
 
-    logging.info(f"Starting molecule {molecule.to_smiles}")
+    logging.info(f"Starting molecule {smiles}")
     # if smiles in energies["SMILES"].values:
     #     print("Molecule with following SMILES already found in data.csv:" f"\t{smiles}")
     #     return
 
     if molecule.n_conformers == 0:
         molecule.generate_conformers(n_conformers=1)
+        logging.info(f"Generated conformers for molecule {smiles}")
 
     topology = molecule.to_topology()
 
@@ -66,9 +84,12 @@ def get_energies_single_molecule(
         topology.box_vectors = box_vectors
 
     try:
+        timer_thread.start()
         toolkit_system = force_field.create_openmm_system(topology)
+        logging.info(f"Generated OpenMM System for molecule {smiles}")
     except Exception as e:
         logging.info(f"Molecule {molecule.to_smiles()} raised exception {type(e)}")
+        timer_thread.join()
         return
 
     toolkit_energy = _get_openmm_energies(
@@ -76,9 +97,14 @@ def get_energies_single_molecule(
         box_vectors=to_openmm(box_vectors),
         positions=positions,
     )
+    logging.info(f"Got energiegs from OpenMM System for molecule {smiles}")
 
     row = pd.DataFrame.from_dict({k: [v.m] for k, v in toolkit_energy.energies.items()})
     row["SMILES"] = molecule.to_smiles()
+
+    finished = True
+    timer_thread.join()
+
     return row
 
 
@@ -104,6 +130,10 @@ if __name__ == "__main__":
             total=len(molecules),
         ):
             energies = energies.append(row)
+            _write_csv(
+                energies,
+                file_name=f"foo.csv",
+            )
 
     _write_csv(
         energies,
