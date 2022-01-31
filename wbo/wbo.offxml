@@ -1,10 +1,9 @@
 <?xml version='1.0' encoding='ASCII'?>
 <SMIRNOFF version="0.3" aromaticity_model="OEAroModel_MDL">
   <Bonds version="0.3" fractional_bondorder_method="AM1-Wiberg" fractional_bondorder_interpolation="linear">
-    <Bond smirks="[#6X4:1]~[#8X2:2]" id="bbo1" k_bondorder1="1000.0 * kilocalories_per_mole/angstrom**2" k_bondorder2="1000000.0 * kilocalories_per_mole/angstrom**2" length_bondorder1="1.0 * angstrom" length_bondorder2="2.0 * angstrom"/>
+    <Bond smirks="[#6X3:1]~[#6X3:2]" id="bbo1" k_bondorder1="1000.0 * kilocalories_per_mole/angstrom**2" k_bondorder2="1000000.0 * kilocalories_per_mole/angstrom**2" length_bondorder1="1.0 * angstrom" length_bondorder2="2.0 * angstrom"/>
   </Bonds>
   <ProperTorsions version="0.3" potential="k*(1+cos(periodicity*theta-phase))" fractional_bondorder_method="AM1-Wiberg">
-    <Proper smirks="[*:1]~[#6X3:2]~[#6X3:3]~[*:4]" id="tbo1" periodicity1="2" phase1="0.0 * degree" k1_bondorder1="1.00*kilocalories_per_mole" k1_bondorder2="1000*kilocalories_per_mole" idivf1="1.0"/>
-    <Proper smirks="[*:1]~[#6X4:2]~[#8X2:3]~[*:4]" id="tbo2" periodicity1="2" phase1="0.0 * degree" k1_bondorder1="1.00*kilocalories_per_mole" k1_bondorder2="1000*kilocalories_per_mole" idivf1="1.0"/>
+    <Proper smirks="[*:1]~[#6X3:2]~[#6X3:3]~[*:4]" id="tbo2" periodicity1="2" phase1="0.0 * degree" k1_bondorder1="1.00*kilocalories_per_mole" k1_bondorder2="1000*kilocalories_per_mole" idivf1="1.0"/>
   </ProperTorsions>
 </SMIRNOFF>
