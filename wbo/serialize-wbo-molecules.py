@@ -66,7 +66,16 @@ if __name__ == "__main__":
     )
 
     SMILES = [
+        "c1cc(ccc1c2cc[nH+]cc2)O",
         "c1cc(ccc1c2cc[nH+]cc2)[O-]",
+        "c1cc(ccc1c2ccncc2)O",
+        "c1cc(ccc1c2ccncc2)[O-]",
+        "c1cc(c(cc1O)Cl)c2cc[nH+]cc2",
+        "c1cc(c(cc1O)Cl)c2ccncc2",
+        "c1cc(c(cc1O)F)c2cc[nH+]cc2",
+        "c1cc(c(cc1O)F)c2ccncc2",
+        "c1cc(c(cc1[O-])Cl)c2cc[nH+]cc2",
+        "c1cc(c(cc1[O-])Cl)c2ccncc2",
     ]
 
     molecules = [Molecule.from_smiles(smiles) for smiles in SMILES]
