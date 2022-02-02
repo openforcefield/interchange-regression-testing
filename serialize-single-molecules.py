@@ -56,9 +56,9 @@ def serialize_system_from_molecule(
 
     logging.info(f"Starting molecule {index}")
 
-#     if molecule.n_conformers == 0:
-#         molecule.generate_conformers(n_conformers=1)
-#         logging.info(f"Generated conformers for molecule {index}")
+    #     if molecule.n_conformers == 0:
+    #         molecule.generate_conformers(n_conformers=1)
+    #         logging.info(f"Generated conformers for molecule {index}")
 
     topology = molecule.to_topology()
 

@@ -25,9 +25,7 @@ logging.basicConfig(
 
 multiprocessing_logging.install_mp_handler()
 
-box_vectors = unit.Quantity(
-    [[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer
-)
+box_vectors = unit.Quantity([[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer)
 
 force_field = ForceField("openff-1.0.0.offxml")
 
@@ -77,9 +75,7 @@ def serialize_system_from_molecule(
                 f.write(XmlSerializer.serialize(toolkit_system))
 
     except Exception as e:
-        logging.info(
-            f"Molecule {molecule.to_smiles()} raised exception {type(e)}"
-        )
+        logging.info(f"Molecule {molecule.to_smiles()} raised exception {type(e)}")
         timer_thread.join()
         return
 
@@ -101,13 +97,13 @@ if __name__ == "__main__":
     )
 
     molecules = Molecule.from_file(
-        "data/single-molecules/dataset.smi", allow_undefined_stereo=True
+        "data/single-molecules/dataset.smi",
+        allow_undefined_stereo=True
         # "dataset.smi", allow_undefined_stereo=True
     )
 
     indices: Dict[str, str] = {
-        f"{index:05}": molecule.to_smiles()
-        for index, molecule in enumerate(molecules)
+        f"{index:05}": molecule.to_smiles() for index, molecule in enumerate(molecules)
     }
 
     args_dict: Dict[str, Molecule] = {

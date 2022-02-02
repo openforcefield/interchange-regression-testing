@@ -150,15 +150,12 @@ xml_charge_increment_model_ff_match_all = """
 
 xml_ff_virtual_sites_bondcharge_match_once = """<?xml version="1.0" encoding="utf-8"?>
 <SMIRNOFF version="0.3" aromaticity_model="OEAroModel_MDL">
-    <Bonds version="0.3" potential="harmonic" fractional_bondorder_method="AM1-Wiberg" fractional_bondorder_interpolation="linear">
-      <Bond smirks="[*:1]~[*:2]" id="b999" k="500.0 * kilocalories_per_mole/angstrom**2" length="1.1 * angstrom"/>
-    </Bonds>
     <VirtualSites version="0.3">
         <VirtualSite
             type="BondCharge"
-            name="EP"
+            name="EP1"
             smirks="[*:1]~[*:2]"
-            distance="0.1*angstrom"
+            distance="0.111*angstrom"
             charge_increment1="0.1*elementary_charge"
             charge_increment2="0.1*elementary_charge"
             sigma="0.1*angstrom"
@@ -167,9 +164,9 @@ xml_ff_virtual_sites_bondcharge_match_once = """<?xml version="1.0" encoding="ut
         </VirtualSite>
         <VirtualSite
             type="BondCharge"
-            name="EP"
+            name="EP2"
             smirks="[#7:1]~[#7:2]"
-            distance="0.2*angstrom"
+            distance="0.222*angstrom"
             charge_increment1="0.2*elementary_charge"
             charge_increment2="0.2*elementary_charge"
             sigma="0.2*angstrom"
@@ -178,9 +175,9 @@ xml_ff_virtual_sites_bondcharge_match_once = """<?xml version="1.0" encoding="ut
         </VirtualSite>
         <VirtualSite
             type="BondCharge"
-            name="EP"
+            name="EP3"
             smirks="[#7:1]~[#7:2]"
-            distance="0.2*nanometers"
+            distance="0.333*angstrom"
             charge_increment1="0.2*elementary_charge"
             charge_increment2="0.2*elementary_charge"
             sigma="0.2*angstrom"

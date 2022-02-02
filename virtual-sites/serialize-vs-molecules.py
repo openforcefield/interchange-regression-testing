@@ -8,13 +8,13 @@ from pathlib import Path
 from typing import Dict
 
 from openff.toolkit import __version__
+from openff.toolkit.tests.create_molecules import *
 from openff.toolkit.topology import Molecule
 from openff.toolkit.typing.engines.smirnoff import ForceField
-from openff.toolkit.tests.create_molecules import *
-from xml_snippets import *
 from openff.units import unit
 from openff.units.openmm import to_openmm
 from openmm import XmlSerializer
+from xml_snippets import *
 
 logging.basicConfig(
     filename=f"toolkit-v{__version__}-vs-serialize.log",
@@ -69,13 +69,13 @@ if __name__ == "__main__":
     )
 
     molecules, snippets = zip(
-            (create_dinitrogen(), xml_ff_virtual_sites_bondcharge_match_once),
-            (create_dioxygen(), xml_ff_virtual_sites_bondcharge_match_once),
-            (create_dioxygen(), xml_ff_virtual_sites_bondcharge_match_all),
-            (create_dioxygen(), xml_ff_virtual_sites_bondcharge_match_once_two_names),
-            (create_acetaldehyde(), xml_ff_virtual_sites_monovalent_match_once),
-            (create_water(), xml_ff_virtual_sites_divalent_match_all),
-            (create_ammonia(), xml_ff_virtual_sites_trivalent_match_once),
+        (create_dinitrogen(), xml_ff_virtual_sites_bondcharge_match_once),
+        (create_dioxygen(), xml_ff_virtual_sites_bondcharge_match_once),
+        (create_dioxygen(), xml_ff_virtual_sites_bondcharge_match_all),
+        (create_dioxygen(), xml_ff_virtual_sites_bondcharge_match_once_two_names),
+        (create_acetaldehyde(), xml_ff_virtual_sites_monovalent_match_once),
+        (create_water(), xml_ff_virtual_sites_divalent_match_all),
+        (create_ammonia(), xml_ff_virtual_sites_trivalent_match_once),
     )
 
     indices: Dict[str, str] = {

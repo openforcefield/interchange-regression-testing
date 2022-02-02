@@ -17,9 +17,7 @@ def postprocessor(path, key, value):
         return key, value
 
 
-box_vectors = unit.Quantity(
-    [[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer
-)
+box_vectors = unit.Quantity([[4, 0, 0], [0, 4, 0], [0, 0, 4]], units=unit.nanometer)
 
 force_field = ForceField("openff-1.0.0.offxml")
 
@@ -47,7 +45,8 @@ def serialize_single_molecule(
         system = force_field.create_openmm_system(topology)
     else:
         system = force_field.create_openmm_system(
-            topology, use_interchange=True,
+            topology,
+            use_interchange=True,
         )
 
     with open(f"toolkit-v{__version__}-index{index}-repro.xml", "w") as f:
