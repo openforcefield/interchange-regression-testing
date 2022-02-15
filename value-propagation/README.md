@@ -12,6 +12,10 @@ Included attributes
 * `vdWHandler.cutoff`
 * `vdWHandler.scale14`
 * `Constraint.distance`
+* `BondHandler.Bond.length`
+* `BondHandler.Bond.k`
+* `AngleHandler.Angle.angle`
+* `AngleHandler.Angle.k`
 
 For each of the below attributes, the OpenFF Toolkit versoin 0.10.x only supports one value and
 therefore no value propagation can be tested:

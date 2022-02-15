@@ -6,6 +6,7 @@ from openff.toolkit.tests.create_molecules import create_ethanol
 from openff.toolkit.tests.utils import get_14_scaling_factors
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
+from openff.units.openmm import from_openmm
 from openmm import unit as openmm_unit
 
 
@@ -61,6 +62,78 @@ class TestvdW(TestValuePropagation):
         _, found_scale_14 = get_14_scaling_factors(modified_system)
 
         assert all(val == pytest.approx(0.123456) for val in found_scale_14)
+
+
+class TestBonds(TestValuePropagation):
+    def test_modify_bond_length(self, force_field, ethanol_topology):
+        new_length = 1.0101 * unit.nanometer
+        original_system = force_field.create_openmm_system(ethanol_topology)
+        force_field["Bonds"].parameters[0].length = new_length
+        modified_system = force_field.create_openmm_system(ethanol_topology)
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.HarmonicBondForce):
+                num_bonds = force.getNumBonds()
+                break
+
+        for index in range(num_bonds):
+            _, _, length, _ = force.getBondParameters(index)
+            assert from_openmm(length) == new_length
+
+    def test_modify_bond_force_constant(self, force_field, ethanol_topology):
+        new_k = 321.123 * unit.kilocalorie_per_mole / unit.angstrom ** 2
+        original_system = force_field.create_openmm_system(ethanol_topology)
+        force_field["Bonds"].parameters[0].k = new_k
+        modified_system = force_field.create_openmm_system(ethanol_topology)
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.HarmonicBondForce):
+                num_bonds = force.getNumBonds()
+                break
+
+        for index in range(num_bonds):
+            _, _, _, k = force.getBondParameters(index)
+            assert from_openmm(k) == new_k
+
+
+class TestAngles(TestValuePropagation):
+    def test_modify_angle_angle(self, force_field, ethanol_topology):
+        new_angle = 101.01 * unit.degree
+        original_system = force_field.create_openmm_system(ethanol_topology)
+        force_field["Angles"].parameters[0].angle = new_angle
+        modified_system = force_field.create_openmm_system(ethanol_topology)
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.HarmonicAngleForce):
+                num_angles = force.getNumAngles()
+                break
+
+        for index in range(num_angles):
+            _, _, _, angle, _ = force.getAngleParameters(index)
+            assert from_openmm(angle) == new_angle
+
+    def test_modify_angle_force_constant(self, force_field, ethanol_topology):
+        new_k = 123.321 * unit.kilocalorie_per_mole / unit.radian ** 2
+        original_system = force_field.create_openmm_system(ethanol_topology)
+        force_field["Angles"].parameters[0].k = new_k
+        modified_system = force_field.create_openmm_system(ethanol_topology)
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.HarmonicAngleForce):
+                num_angles = force.getNumAngles()
+                break
+
+        for index in range(num_angles):
+            _, _, _, _, k = force.getAngleParameters(index)
+            assert (from_openmm(k) - new_k).m == 0
 
 
 class TestConstraints(TestValuePropagation):
