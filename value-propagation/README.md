@@ -8,6 +8,7 @@ For each of the below attributes, tests ensure that
 * modifying their values produces an `openmm.System` that differs from the original
 * the corresponding value(s) in the `openmm.System` match the modified value(s)
 
+Included attributes
 * `vdWHandler.cutoff`
 * `vdWHandler.scale14`
 * `Constraint.distance`
