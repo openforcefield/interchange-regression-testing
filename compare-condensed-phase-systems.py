@@ -32,7 +32,9 @@ logging.basicConfig(
 multiprocessing_logging.install_mp_handler()
 
 
-def _generate_system_from_substance(substance: Substance) -> Tuple[str, System]:
+def _generate_system_from_substance(
+    substance: Substance, use_interchange: bool
+) -> Tuple[str, System]:
     """Generate an `openmm.System` from a `Substance` using OpenFF Evaluator and Toolkit."""
 
     logging.info(f"starting packing {str(substance)}")
@@ -48,24 +50,22 @@ def _generate_system_from_substance(substance: Substance) -> Tuple[str, System]:
 
     logging.info(f"done packing {str(substance)}")
 
-    logging.info(f"starting typing {str(substance)}")
-
-    apply_parameters = BuildSmirnoffSystem("")
-    apply_parameters.force_field_path = "force-field.json"
-    apply_parameters.coordinate_file_path = build_coordinates.coordinate_file_path
-    apply_parameters.substance = substance
-    try:
-        apply_parameters.execute("apply-params")
-        logging.info(f"parameterizing succeeded on {str(substance)}")
-    except Exception as e:
-        logging.info(
-            f"parameterizing failed on {str(substance)} with exception {str(e)}"
-        )
-        return
+    # apply_parameters = BuildSmirnoffSystem("")
+    # apply_parameters.force_field_path = "force-field.json"
+    # apply_parameters.coordinate_file_path = build_coordinates.coordinate_file_path
+    # apply_parameters.substance = substance
+    # try:
+    #     apply_parameters.execute("apply-params")
+    #     logging.info(f"parameterizing succeeded on {str(substance)}")
+    # except Exception as e:
+    #     logging.info(
+    #         f"parameterizing failed on {str(substance)} with exception {str(e)}"
+    #     )
+    #     return
 
     logging.info(f"done typing {str(substance)}")
 
-    def _create_openmm_system(substance, build_coordinates):
+    def _create_openmm_system(substance, build_coordinates, use_interchange):
         """Hidden function for creating an `openmm.System` from Interchange"""
         force_field = ForceField("openff-2.0.0.offxml")
 
@@ -87,33 +87,49 @@ def _generate_system_from_substance(substance: Substance) -> Tuple[str, System]:
             unique_molecules=unique_molecules,
         )
 
-        interchange = Interchange.from_smirnoff(force_field, topology)
+        logging.info(
+            f"starting create_openmm_system call {str(substance)}, {use_interchange=}"
+        )
 
-        return interchange.to_openmm(combine_nonbonded_forces=True)
+        return force_field.create_openmm_system(use_interchange=use_interchange)
+
+    #       interchange = Interchange.from_smirnoff(force_field, topology)
+    #
+    #       return interchange.to_openmm(combine_nonbonded_forces=True)
+
+    try:
+        system = _create_openmm_system(substance, build_coordinates, use_interchange)
+    except:
+        return
 
     return (
         build_coordinates.coordinate_file_path,
-        apply_parameters.parameterized_system.system,
+        system,
     )
 
 
 def serialize_system_from_substance(args):
     index, substance = args
-    try:
-        coordinate_file_path, system = _generate_system_from_substance(substance)
-    except TypeError:
-        # TODO: Better way of short-circuiting on i.e. Packmol failure
-        return
 
-    pdb_file = app.PDBFile(coordinate_file_path)
+    for use_interchange in [True, False]:
+        try:
+            coordinate_file_path, system = _generate_system_from_substance(
+                substance,
+                use_interchange,
+            )
+        except TypeError:
+            # TODO: Better way of short-circuiting on i.e. Packmol failure
+            return
 
-    logging.info(f"serializing openmm {str(substance)}")
+        pdb_file = app.PDBFile(coordinate_file_path)
 
-    with open(
-        f"results/condensed-phase-systems/toolkit-v{__version__}/systems/{index}.xml",
-        "w",
-    ) as f:
-        f.write(XmlSerializer.serialize(system))
+        logging.info(f"serializing openmm {str(substance)}")
+
+        with open(
+            f"results/condensed-phase-systems/toolkit-v{__version__}-{use_interchange}/systems/{index}.xml",
+            "w",
+        ) as f:
+            f.write(XmlSerializer.serialize(system))
 
     return
 
@@ -122,6 +138,12 @@ if __name__ == "__main__":
 
     Path("data/condensed-phase-systems/").mkdir(parents=True, exist_ok=True)
     Path(f"results/condensed-phase-systems/toolkit-v{__version__}/systems").mkdir(
+        parents=True, exist_ok=True
+    )
+    Path(f"results/condensed-phase-systems/toolkit-v{__version__}-True/systems").mkdir(
+        parents=True, exist_ok=True
+    )
+    Path(f"results/condensed-phase-systems/toolkit-v{__version__}-False/systems").mkdir(
         parents=True, exist_ok=True
     )
 
@@ -156,8 +178,7 @@ if __name__ == "__main__":
     ) as f:
         json.dump(indices, f)
 
-    # with Pool(cpu_count() * 1.2)) as pool:
-    with Pool(processes=int(2)) as pool:
+    with Pool(processes=int(10)) as pool:
 
         for row in tqdm.tqdm(
             pool.imap(serialize_system_from_substance, list(args_dict.items())),
