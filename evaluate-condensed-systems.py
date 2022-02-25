@@ -38,7 +38,9 @@ def _generate_system_from_substance(substance: Substance) -> Tuple[str, System]:
     logging.info(f"starting packing {str(substance)}")
 
     build_coordinates = BuildCoordinatesPackmol("")
+    build_coordinates.max_molecules = 200
     build_coordinates.substance = substance
+
     try:
         build_coordinates.execute("build-coords")
         logging.info(f"packing suceeded on {str(substance)}")
