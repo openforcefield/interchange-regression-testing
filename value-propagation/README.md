@@ -9,21 +9,24 @@ For each of the below attributes, tests ensure that
 * the corresponding value(s) in the `openmm.System` match the modified value(s)
 
 Included attributes
-* `vdWHandler.cutoff`
 * `vdWHandler.scale14`
+* `vdWHandler.cutoff`
+* `vdWHandler.switch_width`
+* `vdWHandler.vdWType.sigma`
+* `vdWHandler.vdWType.epsilon`
 * `Constraint.distance`
-* `BondHandler.Bond.length`
-* `BondHandler.Bond.k`
-* `AngleHandler.Angle.angle`
-* `AngleHandler.Angle.k`
+* `BondHandler.BondType.length`
+* `BondHandler.BondType.k`
+* `AngleHandler.AngleType.angle`
+* `AngleHandler.AngleType.k`
 
-For each of the below attributes, the OpenFF Toolkit versoin 0.10.x only supports one value and
+For each of the below attributes, the OpenFF Toolkit version 0.10.x only supports one value and
 therefore no value propagation can be tested:
+* `vdWHandler.potential`
+* `vdWHandler.combining_rules`
 * `vdWHandler.scale12`
 * `vdWHandler.scale13`
 * `vdWHandler.scale15`
-* `vdWHandler.potential`
-* `vdWHandler.combining_rules`
 * `vdWHandler.method`
 * `BondHandler.potential`
 * `BondHandler.fractional_bondorder_method`
