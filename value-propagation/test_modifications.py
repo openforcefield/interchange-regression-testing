@@ -2,7 +2,7 @@ import openmm
 import pytest
 import xmltodict
 from deepdiff import DeepDiff
-from openff.toolkit.tests.create_molecules import create_ethanol
+from openff.toolkit.tests.create_molecules import create_ethanol, create_ammonia
 from openff.toolkit.tests.utils import get_14_scaling_factors
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
@@ -40,6 +40,12 @@ class TestValuePropagation:
     @pytest.fixture()
     def ethanol_topology(self):
         topology = create_ethanol().to_topology()
+        topology.box_vectors = unit.Quantity([4, 4, 4], unit.nanometer)
+        return topology
+
+    @pytest.fixture()
+    def ammonia_topology(self):
+        topology = create_ammonia().to_topology()
         topology.box_vectors = unit.Quantity([4, 4, 4], unit.nanometer)
         return topology
 
@@ -259,6 +265,137 @@ class TestAngles(TestValuePropagation):
         for index in range(num_angles):
             _, _, _, _, k = force.getAngleParameters(index)
             assert (from_openmm(k) - new_k).m == 0
+
+
+class TestProperTorsions(TestValuePropagation):
+    def test_modify_proper_k(self, force_field, ethanol_topology):
+        new_k = 101.01 * unit.kilocalorie_per_mole
+        original_system = force_field.create_openmm_system(
+            ethanol_topology, use_interchange=True
+        )
+        force_field["ProperTorsions"].parameters[0].k[0] = new_k
+        modified_system = force_field.create_openmm_system(
+            ethanol_topology, use_interchange=True
+        )
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.PeriodicTorsionForce):
+                num_torsions = force.getNumTorsions()
+                break
+
+        for index in range(num_torsions):
+            _, _, _, _, _, _, k = force.getTorsionParameters(index)
+            assert from_openmm(k) == new_k
+
+    def test_modify_proper_phase(self, force_field, ethanol_topology):
+        new_phase = 101.01 * unit.degree
+        original_system = force_field.create_openmm_system(
+            ethanol_topology, use_interchange=True
+        )
+        force_field["ProperTorsions"].parameters[0].phase[0] = new_phase
+        modified_system = force_field.create_openmm_system(
+            ethanol_topology, use_interchange=True
+        )
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.PeriodicTorsionForce):
+                num_torsions = force.getNumTorsions()
+                break
+
+        for index in range(num_torsions):
+            _, _, _, _, _, phase, _ = force.getTorsionParameters(index)
+            assert from_openmm(phase) == new_phase
+
+    def test_modify_proper_periodicity(self, force_field, ethanol_topology):
+        new_periodicity = 10
+        original_system = force_field.create_openmm_system(
+            ethanol_topology, use_interchange=True
+        )
+        force_field["ProperTorsions"].parameters[0].periodicity[0] = new_periodicity
+        modified_system = force_field.create_openmm_system(
+            ethanol_topology, use_interchange=True
+        )
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.PeriodicTorsionForce):
+                num_torsions = force.getNumTorsions()
+                break
+
+        for index in range(num_torsions):
+            _, _, _, _, periodicity, _, _ = force.getTorsionParameters(index)
+            assert periodicity == new_periodicity
+
+
+
+class TestImproperTorsions(TestValuePropagation):
+    def test_modify_improper_k(self, force_field, ammonia_topology):
+        new_k = 101.01 * unit.kilocalorie_per_mole
+        original_system = force_field.create_openmm_system(
+            ammonia_topology, use_interchange=True
+        )
+        force_field["ImproperTorsions"].parameters[0].k[0] = new_k
+        modified_system = force_field.create_openmm_system(
+            ammonia_topology, use_interchange=True
+        )
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.PeriodicTorsionForce):
+                num_torsions = force.getNumTorsions()
+                break
+
+        for index in range(num_torsions):
+            _, _, _, _, _, _, k = force.getTorsionParameters(index)
+            assert from_openmm(k) == new_k / 3
+
+    def test_modify_improper_phase(self, force_field, ammonia_topology):
+        new_phase = 101.01 * unit.degree
+        original_system = force_field.create_openmm_system(
+            ammonia_topology, use_interchange=True
+        )
+        force_field["ImproperTorsions"].parameters[0].phase[0] = new_phase
+        modified_system = force_field.create_openmm_system(
+            ammonia_topology, use_interchange=True
+        )
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.PeriodicTorsionForce):
+                num_torsions = force.getNumTorsions()
+                break
+
+        for index in range(num_torsions):
+            _, _, _, _, _, phase, _ = force.getTorsionParameters(index)
+            assert from_openmm(phase) == new_phase
+
+    def test_modify_improper_periodicity(self, force_field, ammonia_topology):
+        new_periodicity = 10
+        original_system = force_field.create_openmm_system(
+            ammonia_topology, use_interchange=True
+        )
+        force_field["ImproperTorsions"].parameters[0].periodicity[0] = new_periodicity
+        modified_system = force_field.create_openmm_system(
+            ammonia_topology, use_interchange=True
+        )
+
+        assert len(deep_diff(original_system, modified_system)) > 0
+
+        for force in modified_system.getForces():
+            if isinstance(force, openmm.PeriodicTorsionForce):
+                num_torsions = force.getNumTorsions()
+                break
+
+        for index in range(num_torsions):
+            _, _, _, _, periodicity, _, _ = force.getTorsionParameters(index)
+            assert periodicity == new_periodicity
 
 
 class TestConstraints(TestValuePropagation):
