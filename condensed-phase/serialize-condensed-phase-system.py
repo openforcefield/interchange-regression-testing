@@ -2,6 +2,7 @@
 Evaluate condensed-phase systems (`openmm.System`) corresponding to entires
 in physical property data sets.
 """
+import sys
 import json
 import urllib
 from pathlib import Path
@@ -29,12 +30,6 @@ def postprocessor(path, key, value):
 
 Path("data/condensed-phase-systems/").mkdir(parents=True, exist_ok=True)
 Path(f"results/condensed-phase-systems/toolkit-v{__version__}/systems").mkdir(
-    parents=True, exist_ok=True
-)
-Path(f"results/condensed-phase-systems/toolkit-v{__version__}-True/systems").mkdir(
-    parents=True, exist_ok=True
-)
-Path(f"results/condensed-phase-systems/toolkit-v{__version__}-False/systems").mkdir(
     parents=True, exist_ok=True
 )
 
@@ -95,7 +90,12 @@ def _create_openmm_system(substance, build_coordinates, use_interchange):
     return force_field.create_openmm_system(topology, use_interchange=use_interchange)
 
 
-for substance in tqdm(args_dict.values()):
+i = sys.argv[1]
+
+for index, substance in tqdm(args_dict.items()):
+
+    if int(index) != int(i):
+        continue
 
     build_coordinates = BuildCoordinatesPackmol("")
     build_coordinates.substance = substance
@@ -128,20 +128,12 @@ for substance in tqdm(args_dict.values()):
         unique_molecules=unique_molecules,
     )
 
-    system1 = force_field.create_openmm_system(topology, use_interchange=False)
+    try:
+        system = force_field.create_openmm_system(topology, use_interchange=False)
+    except ValueError:
+        system = force_field.create_openmm_system(topology)
 
-    system2 = force_field.create_openmm_system(topology, use_interchange=True)
+    file_path = f"results/condensed-phase-systems/toolkit-v{__version__}/systems/{index}.xml"
 
-    dict1 = xmltodict.parse(
-        XmlSerializer.serialize(system1), postprocessor=postprocessor
-    )
-    dict2 = xmltodict.parse(
-        XmlSerializer.serialize(system2), postprocessor=postprocessor
-    )
-
-    diff = DeepDiff(dict1, dict2, ignore_order=True, significant_digits=8)
-
-    if len(diff) > 0:
-        raise Exception(f"substance {str(substance)} failed")
-    else:
-        print(f"substance {str(substance)} succeeded")
+    with open(file_path, "w") as f:
+        f.write(XmlSerializer.serialize(system))

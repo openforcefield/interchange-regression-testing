@@ -32,7 +32,10 @@ df = pd.read_csv(
 To compare against physical properties, use something like a [Sage training
 set](https://github.com/openforcefield/openff-sage/blob/main/data-set-curation/physical-property/optimizations/data-sets/sage-train-v1.json) and run
 ```
-$ python compare-condensed-systems.py
+$ cd condensed-phase
+$ sh run_condensed.sh
+```
+
 Run other tests with something like
 ```
 $ pytest -v

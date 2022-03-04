@@ -127,3 +127,7 @@ md.log
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# OpenFF Evaluator temporary directories
+build-coords/
+apply-params/
