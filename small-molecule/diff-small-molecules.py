@@ -28,7 +28,7 @@ for index in range(
 
     try:
         with open(
-            f"results/single-molecules/toolkit-v0.10.1+42.gd7f02367/systems-False/{index:05}.xml"
+            f"results/single-molecules/toolkit-v0.10.1+42.g0b0999e1/systems-False/{index:05}.xml"
         ) as f:
             system1 = xmltodict.parse(f.read(), postprocessor=postprocessor)
     except FileNotFoundError:
@@ -36,7 +36,7 @@ for index in range(
 
     try:
         with open(
-            f"results/single-molecules/toolkit-v0.10.1+42.gd7f02367/systems-True/{index:05}.xml",
+            f"results/single-molecules/toolkit-v0.10.1+42.g0b0999e1/systems-True/{index:05}.xml",
         ) as f:
             system2 = xmltodict.parse(f.read(), postprocessor=postprocessor)
     except FileNotFoundError:

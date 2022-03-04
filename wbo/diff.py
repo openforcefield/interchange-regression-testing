@@ -19,7 +19,7 @@ for index in smiles:
         system1 = xmltodict.parse(f.read(), postprocessor=postprocessor)
 
     with open(
-        f"results/wbo-molecules/toolkit-v0.10.1+42.gd7f02367/systems/{index}.xml",
+        f"results/wbo-molecules/toolkit-v0.10.1+41.g0b0999e1/systems/{index}.xml",
     ) as f:
         system2 = xmltodict.parse(f.read(), postprocessor=postprocessor)
 
