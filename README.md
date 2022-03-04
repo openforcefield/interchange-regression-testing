@@ -8,8 +8,8 @@ Two conda environments are shipped via YAML files:
 Create either via i.e.
 
 ```
-$ mamba env create --file reference_env.yaml
-$ mamba env create --file candidate_env.yaml
+$ mamba env create --file conda-envs/reference_env.yaml
+$ mamba env create --file conda-envs/candidate_env.yaml
 ```
 
 To evaluate single-molecule energies using [Industry Benchmarking Season 1 v1.0](https://github.com/openforcefield/qca-dataset-submission/tree/master/submissions/2021-03-30-OpenFF-Industry-Benchmark-Season-1-v1.0#readme) dataset, activate the appropriate conda environment and run
