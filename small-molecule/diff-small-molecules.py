@@ -17,7 +17,7 @@ def postprocessor(path, key, value):
         return key, value
 
 
-# smiles = json.load(open(f"results/single-molecules/toolkit-v0.10.2/indices.json", "r"))
+# smiles = json.load(open(f"results/single-molecules/toolkit-v0.10.3/indices.json", "r"))
 
 for index in range(
     max(

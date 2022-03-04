@@ -2,7 +2,7 @@
 Regression testing Interchange's OpenMM export against the OpenFF Toolkit
 
 Two conda environments are shipped via YAML files:
-  * `reference_env.yaml` captures behavior and functionality as of OpenFF Toolkit v0.10.2.
+  * `reference_env.yaml` captures behavior and functionality as of OpenFF Toolkit v0.10.3.
   * `candidate_env.yaml` captures changes based on the version specified in file.
 
 Create either via i.e.

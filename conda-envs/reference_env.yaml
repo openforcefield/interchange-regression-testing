@@ -14,7 +14,7 @@ dependencies:
   - mdtraj
   - mendeleev
   # OpenFF stack
-  - openff-toolkit ==0.10.2
+  - openff-toolkit ==0.10.3
   - openff-utilities
   - openff-units
   # Optional features

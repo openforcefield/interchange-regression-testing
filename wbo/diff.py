@@ -12,10 +12,10 @@ def postprocessor(path, key, value):
         return key, value
 
 
-smiles = json.load(open("results/wbo-molecules/toolkit-v0.10.2/indices.json", "r"))
+smiles = json.load(open("results/wbo-molecules/toolkit-v0.10.3/indices.json", "r"))
 
 for index in smiles:
-    with open(f"results/wbo-molecules/toolkit-v0.10.2/systems/{index}.xml") as f:
+    with open(f"results/wbo-molecules/toolkit-v0.10.3/systems/{index}.xml") as f:
         system1 = xmltodict.parse(f.read(), postprocessor=postprocessor)
 
     with open(

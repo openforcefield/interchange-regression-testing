@@ -22,7 +22,7 @@ i = sys.argv[1]
 
 for index in range(
     1,
-    len(glob.glob("results/condensed-phase-systems/toolkit-v0.10.2/systems/*.xml")) + 1,
+    len(glob.glob("results/condensed-phase-systems/toolkit-v0.10.3/systems/*.xml")) + 1,
 ):
 
     if index != int(i):
@@ -30,7 +30,7 @@ for index in range(
 
     index = f"{index:05}"
     with open(
-        f"results/condensed-phase-systems/toolkit-v0.10.2/systems/{index}.xml", "r"
+        f"results/condensed-phase-systems/toolkit-v0.10.3/systems/{index}.xml", "r"
     ) as f1:
         _f1 = f1.read()
         dict1 = xmltodict.parse(_f1, postprocessor=postprocessor)

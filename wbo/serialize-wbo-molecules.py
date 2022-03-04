@@ -39,7 +39,7 @@ def serialize_system_from_molecule(
 
     topology = molecule.to_topology()
 
-    if __version__ == "0.10.2":
+    if __version__ == "0.10.3":
         topology.box_vectors = to_openmm(box_vectors)
     else:
         topology.box_vectors = box_vectors
