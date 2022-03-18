@@ -134,11 +134,7 @@ if __name__ == "__main__":
     )
 
     print("loading ...")
-    molecules = Molecule.from_file(
-        "data/single-molecules/dataset-small.smi",
-        allow_undefined_stereo=True
-        # "dataset.smi", allow_undefined_stereo=True
-    )
+    molecules = Molecule.from_file("dataset.smi", allow_undefined_stereo=True)
     print("loaded!")
     indices: Dict[str, str] = {
         f"{index:05}": molecule.to_smiles(
