@@ -17,13 +17,10 @@ dependencies:
   - openff-utilities
   - openff-units
   # Optional features
-  - jax
   - unyt
   - mbuild
   - foyer >=0.8.1
   # Testing
-  - intermol
-  - openff-interchange
   - openff-evaluator
   - openff-recharge
   - pytest
