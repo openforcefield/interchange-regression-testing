@@ -2,7 +2,6 @@ name: candidate-env
 channels:
   - conda-forge
   - bioconda
-  - openeye
   - simonboothroyd
 dependencies:
   # Core
@@ -26,7 +25,6 @@ dependencies:
   - intermol
   - openff-evaluator
   - openff-recharge
-  - openeye-toolkits
   - pytest
   - pytest-xdist
   - pytest-randomly
