@@ -139,22 +139,24 @@ if __name__ == "__main__":
         allow_undefined_stereo=True,
     )
     print("loaded!")
-    indices: Dict[str, str] = {
-        f"{index:05}": molecule.to_smiles(
-            explicit_hydrogens=True,
-            mapped=True,
-        )
-        for index, molecule in enumerate(molecules)
-    }
+
+    if False:
+        indices: Dict[str, str] = {
+            f"{index:05}": molecule.to_smiles(
+                # explicit_hydrogens=True,
+                # mapped=True,
+            )
+            for index, molecule in enumerate(molecules)
+        }
+
+        with open(
+            f"results/single-molecules/toolkit-v{__version__}/indices.json", "w"
+        ) as f:
+            json.dump(indices, f)
 
     args_dict: Dict[str, Molecule] = {
         f"{index:05}": molecule for index, molecule in enumerate(molecules)
     }
-
-    with open(
-        f"results/single-molecules/toolkit-v{__version__}/indices.json", "w"
-    ) as f:
-        json.dump(indices, f)
 
     with Pool(processes=int(cpu_count())) as pool:
 
