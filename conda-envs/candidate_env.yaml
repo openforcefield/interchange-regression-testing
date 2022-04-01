@@ -1,7 +1,6 @@
 name: candidate-env
 channels:
   - conda-forge
-  - bioconda
   - simonboothroyd
 dependencies:
   # Core
@@ -33,10 +32,6 @@ dependencies:
   - openff-qcsubmit
   - deepdiff
   - nonbonded
-  # Drivers
-  - gromacs >=2021
-  - lammps
-  - panedr
   # Typing
   - mypy
   - typing-extensions
