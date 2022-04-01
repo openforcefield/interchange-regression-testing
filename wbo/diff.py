@@ -4,6 +4,9 @@ from pprint import pprint
 import xmltodict
 from deepdiff import DeepDiff
 
+from openff.toolkit import __version__
+
+assert __version__.startswith("0.10.1+")
 
 def postprocessor(path, key, value):
     try:
@@ -19,7 +22,7 @@ for index in smiles:
         system1 = xmltodict.parse(f.read(), postprocessor=postprocessor)
 
     with open(
-        f"results/wbo-molecules/toolkit-v0.10.1+41.g0b0999e1/systems/{index}.xml",
+        f"results/wbo-molecules/toolkit-v{__version__}/systems/{index}.xml",
     ) as f:
         system2 = xmltodict.parse(f.read(), postprocessor=postprocessor)
 

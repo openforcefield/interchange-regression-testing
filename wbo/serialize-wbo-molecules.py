@@ -2,6 +2,7 @@
 Evaluate WBO systems (`openmm.System`) corresponding to entires
 in molecule data sets.
 """
+import tqdm
 import json
 import logging
 from pathlib import Path
@@ -91,5 +92,5 @@ if __name__ == "__main__":
     with open(f"results/wbo-molecules/toolkit-v{__version__}/indices.json", "w") as f:
         json.dump(indices, f)
 
-    for index, molecule in enumerate(molecules):
+    for index, molecule in tqdm.tqdm(enumerate(molecules)):
         serialize_system_from_molecule(index, molecule)
