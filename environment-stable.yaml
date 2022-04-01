@@ -1,0 +1,26 @@
+name: interchange-regression-testing
+
+channels:
+  - conda-forge
+  - openeye
+
+dependencies:
+    # Core
+  - python
+  - pip
+
+  - click
+  - rich
+
+  - pydantic
+  - numpy
+  - pyyaml
+
+  - openmm
+  - openeye-toolkits
+
+  - deepdiff
+  - xmltodict
+
+  - openff-toolkit-base
+  - openff-interchange-base
