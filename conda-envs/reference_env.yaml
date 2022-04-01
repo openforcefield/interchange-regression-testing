@@ -13,6 +13,9 @@ dependencies:
   - mendeleev
   # OpenFF stack
   - openff-toolkit ==0.10.3
+  - cachetools
+  - cached-property
+  - python-constraint
   - openff-utilities
   - openff-units
   # Optional features
