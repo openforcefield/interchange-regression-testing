@@ -1,13 +1,28 @@
 import json
 from pathlib import Path
+from typing import Any, Tuple
 
 import click
 from openff.toolkit.typing.engines.smirnoff import ForceField
+from openff.units import unit
 from rich import get_console, pretty
 from rich.console import NewLine
 from rich.padding import Padding
 
-from interchange_regression_utilities.perturb import enumerate_perturbations
+from interchange_regression_utilities.perturb import enumerate_perturbations, \
+    default_perturbation
+
+
+def perturbation_function(attribute_path: str, old_value: Any) -> Tuple[Any, bool]:
+
+    new_values = {
+        "ConstraintHandler/Constraints/distance": 0.1234 * unit.angstrom,
+    }
+
+    if attribute_path in new_values:
+        return new_values[attribute_path], True
+
+    return default_perturbation(attribute_path, old_value)
 
 
 @click.command()
@@ -17,7 +32,7 @@ from interchange_regression_utilities.perturb import enumerate_perturbations
     help="The path of the force field to perturb.",
     type=click.Path(exists=False, file_okay=True, dir_okay=False),
     required=True,
-    default="openff-2.0.0.offxml",
+    default=str(Path("force-fields", "minimal-force-field.offxml")),
     show_default=True,
 )
 @click.option(
@@ -33,7 +48,7 @@ def main(force_field_path: Path, output_path: Path):
     pretty.install(console)
 
     perturbations, warning_messages = enumerate_perturbations(
-        ForceField(force_field_path)
+        ForceField(force_field_path), perturbation_function
     )
 
     if len(warning_messages) > 0:

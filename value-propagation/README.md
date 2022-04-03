@@ -24,7 +24,7 @@ export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.
 3. Enumerate the fields of a SMIRNOFF force field that can be easily perturbed
 
 ```shell
-python enumerate-perturbations.py --force-field "openff-2.0.0.offxml" \
+python enumerate-perturbations.py --force-field "force-fields/minimal-force-field.offxml" \
                                   --output      "perturbations/default-perturbations.json"
 ```
 
@@ -71,6 +71,7 @@ compare_openmm_systems --input-dir-a "perturbed-systems/omm-systems-toolkit-$TOO
                        --input-dir-b "perturbed-systems/omm-systems-interchange-$INTERCHANGE_VERSION" \
                        --output      "perturbed-systems-$TOOLKIT_VERSION-vs-interchange-$INTERCHANGE_VERSION.json" \
                        --settings         "../openmm-system-parity/comparison-settings/default-comparison-settings.json" \
+                       --expected-changes "../openmm-system-parity/expected-changes/toolkit-0-11-x-to-interchange-0-2-x.json" \
                        --n-procs     2
 ```
 

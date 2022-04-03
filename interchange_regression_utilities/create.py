@@ -29,10 +29,6 @@ def perturb_force_field(
     attribute_path = perturbation.path.split("/")
     handler_type, *_, attribute_name = attribute_path
 
-    handler = handlers_by_type[handler_type]
-
-    attribute_parent = handler if len(attribute_path) == 2 else handler.parameters[0]
-
     new_value = perturbation.new_value
 
     if perturbation.new_units is not None:
@@ -43,7 +39,11 @@ def perturb_force_field(
         if isinstance(new_value, unit.Quantity):
             new_value = to_openmm(new_value)
 
-    setattr(attribute_parent, attribute_name, new_value)
+    handler = handlers_by_type[handler_type]
+    attribute_parents = [handler] if len(attribute_path) == 2 else handler.parameters
+
+    for attribute_parent in attribute_parents:
+        setattr(attribute_parent, attribute_name, new_value)
 
     return force_field
 

@@ -1,6 +1,6 @@
 import inspect
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from openff.toolkit.typing.engines.smirnoff import (
     ForceField,
@@ -27,6 +27,8 @@ IGNORED_ATTRIBUTES = [
     "name",
     "parent_id",
 ]
+
+PerturbationFunc = Callable[[str, Any], Tuple[Any, bool]]
 
 
 def get_parameter_attributes(parent_class) -> Dict[str, List[str]]:
@@ -86,8 +88,21 @@ def get_all_attributes():
     return {**attributes_by_type}
 
 
+def default_perturbation(path: str, old_value: Any) -> Tuple[Any, bool]:
+
+    if isinstance(old_value, str) or old_value is None:
+        return None, False
+
+    value_multiplier = (
+        old_value.units if isinstance(old_value, unit.Quantity) else 1.0
+    )
+
+    new_value = old_value + 1.0 * value_multiplier
+    return new_value, True
+
+
 def enumerate_perturbations(
-    force_field: ForceField,
+    force_field: ForceField, perturbation_func: Optional[PerturbationFunc] = None
 ) -> Tuple[List[Perturbation], List[str]]:
 
     handlers_by_type = {
@@ -147,13 +162,6 @@ def enumerate_perturbations(
 
             old_value = getattr(attribute_parent, attribute_name)
 
-            if isinstance(old_value, str) or old_value is None:
-
-                warning_messages.append(
-                    f"skipping {attribute_path} - can only perturb numeric values"
-                )
-                continue
-
             if not use_openff_units():
 
                 from openmm import unit as openmm_unit
@@ -161,15 +169,31 @@ def enumerate_perturbations(
                 if isinstance(old_value, openmm_unit.Quantity):
                     old_value = from_openmm(old_value)
 
-            value_multiplier = (
-                old_value.units if isinstance(old_value, unit.Quantity) else 1.0
-            )
+            if perturbation_func is None:
+                new_value, successful = default_perturbation(attribute_path, old_value)
 
-            new_value = old_value + 1.0 * value_multiplier
+                if not successful:
 
-            if isinstance(old_value, unit.Quantity):
-                expected_unit = f"{old_value.units:D}"
-                new_value = new_value.m_as(old_value.units)
+                    warning_messages.append(
+                        f"skipping {attribute_path} - can only perturb numeric values "
+                        f"using the default perturbation function"
+                    )
+                    continue
+
+            else:
+                new_value, successful = perturbation_func(attribute_path, old_value)
+
+                if not successful:
+
+                    warning_messages.append(
+                        f"skipping {attribute_path} - could not perturb with custom "
+                        f"function"
+                    )
+                    continue
+
+            if isinstance(new_value, unit.Quantity):
+                expected_unit = f"{new_value.units:D}"
+                new_value = new_value.m_as(new_value.units)
             else:
                 expected_unit = None
 
