@@ -1,9 +1,5 @@
 # Value Propagation
 
-## Instructions
-
-*Check that changes to a force field propagate through to changes in an OpenMM system*
-
 1. Create a conda environment containing both the OpenFF Toolkit and OpenFF Interchange
 
 ```shell
@@ -20,6 +16,11 @@ cd -
 export TOOLKIT_VERSION=$(python -c "import openff.toolkit; print(openff.toolkit.__version__)")
 export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.interchange.__version__)")
 ```
+
+## Regression Check
+
+*Check that changes to a force field propagate through to changes in an OpenMM system in the same way as a 
+previous version*
 
 3. Enumerate the fields of a SMIRNOFF force field that can be easily perturbed
 
@@ -73,6 +74,22 @@ compare_openmm_systems --input-dir-a "perturbed-systems/omm-systems-toolkit-$TOO
                        --settings         "../openmm-system-parity/comparison-settings/default-comparison-settings.json" \
                        --expected-changes "../openmm-system-parity/expected-changes/toolkit-0-11-x-to-interchange-0-2-x.json" \
                        --n-procs     2
+```
+
+## Integration Check
+
+*Check that changes to a force field propagate through to changes in an OpenMM system*
+
+```shell
+python check-values-propagate.py --input  "force-fields/minimal-force-field.offxml" "CCO" \
+                                 --input  "force-fields/minimal-force-field.offxml" "N" \
+                                 --output "propagation-differences-toolkit-$TOOLKIT_VERSION.json" \
+                                 --using-toolkit
+                                 
+python check-values-propagate.py --input  "force-fields/minimal-force-field.offxml" "CCO" \
+                                 --input  "force-fields/minimal-force-field.offxml" "N" \
+                                 --output "propagation-differences-interchange-$INTERCHANGE_VERSION.json" \
+                                 --using-interchange
 ```
 
 ## Notes

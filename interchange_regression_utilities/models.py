@@ -7,7 +7,15 @@ from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union
 
 import yaml
 from openff.toolkit.topology import Molecule, Topology
-from pydantic import BaseModel, Extra, Field, PositiveInt, conlist, parse_obj_as
+from pydantic import (
+    BaseModel,
+    Extra,
+    Field,
+    PositiveInt,
+    conlist,
+    parse_obj_as,
+    validator,
+)
 
 from interchange_regression_utilities.utilities import use_openff_units
 
@@ -135,7 +143,26 @@ class ExpectedDifference(CommonModel, abc.ABC):
 
     type: Literal["base-type"]
 
-    path: str = Field(..., description="The path to the field that should be different")
+    openmm_path: Optional[str] = Field(
+        None,
+        description="The path to the field that should be different formatted as a "
+        "general path, e.g. ``'Forces/HarmonicBondForce/Bonds/*/d'``. This field is "
+        "mutually exclusive with ``deepdiff_path``.",
+    )
+    deepdiff_path: Optional[str] = Field(
+        None,
+        description="The path to the field that should be different formatted as a "
+        "DeepDiff path, e.g. ``root['Forces'][0]['Bonds']['1']['d']``. This field is "
+        "mutually exclusive with ``openmm_path``.",
+    )
+
+    @validator("deepdiff_path", always=True)
+    def _validate_deepdiff_path(cls, v, values):
+
+        assert (
+            values["openmm_path"] and not v or not values["openmm_path"] and v
+        ), "exactly one of 'openmm_path' and 'deepdiff_path' must be specified"
+        return v
 
 
 class ExpectedValueChange(ExpectedDifference):

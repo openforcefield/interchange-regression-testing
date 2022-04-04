@@ -1,9 +1,10 @@
 import pickle
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import openmm
 from openff.interchange.components.interchange import Interchange
+from openff.toolkit.topology import Topology
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
 from openff.units.openmm import to_openmm
@@ -43,13 +44,23 @@ def perturb_force_field(
     attribute_parents = [handler] if len(attribute_path) == 2 else handler.parameters
 
     for attribute_parent in attribute_parents:
-        setattr(attribute_parent, attribute_name, new_value)
+
+        if (
+            attribute_name.endswith("1")
+            and getattr(attribute_parent, attribute_name[:-1]) is None
+        ):
+            # Handle cases where the parent indexed array is none (e.g. idivf) and
+            # the toolkit is incapable of first setting it to an array before setting
+            # the value...
+            setattr(attribute_parent, attribute_name[:-1], [new_value])
+        else:
+            setattr(attribute_parent, attribute_name, new_value)
 
     return force_field
 
 
 def create_openmm_system(
-    topology_definition: TopologyDefinition,
+    topology_definition: Union[TopologyDefinition, Topology],
     force_field: ForceField,
     using_interchange: bool,
     output_path: Optional[Path] = None,
@@ -65,7 +76,10 @@ def create_openmm_system(
         if perturbation is not None:
             force_field = perturb_force_field(force_field, perturbation)
 
-        topology = topology_definition.to_topology()
+        if isinstance(topology_definition, TopologyDefinition):
+            topology = topology_definition.to_topology()
+        else:
+            topology = topology_definition
 
         if using_interchange:
             openff_interchange = Interchange.from_smirnoff(force_field, topology)

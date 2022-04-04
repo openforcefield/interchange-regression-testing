@@ -5,7 +5,6 @@ from typing import List
 
 import click
 import rich
-from deepdiff.model import PrettyOrderedSet
 from openff.toolkit import __version__
 from rich import pretty
 from rich.console import NewLine
@@ -19,6 +18,7 @@ from interchange_regression_utilities.models import (
     model_from_file,
 )
 from interchange_regression_utilities.parsing.openmm import load_openmm_system_as_dict
+from interchange_regression_utilities.utilities import DeepDiffEncoder
 
 current_toolkit_version = __version__
 
@@ -203,14 +203,6 @@ def main(
                 (1, 0, 1, 0),
             )
         )
-
-        class DeepDiffEncoder(json.JSONEncoder):
-            def default(self, obj):
-
-                if isinstance(obj, PrettyOrderedSet):
-                    return [*obj]
-
-                return json.JSONEncoder.default(self, obj)
 
         with output_path.open("w") as file:
             json.dump(system_differences, file, cls=DeepDiffEncoder)

@@ -23,7 +23,9 @@ def _values_from_openmm_system(
         attribute_names = [current_path[0]]
     else:
 
-        if not isinstance(parent_value, (dict, list)):
+        if parent_value is None:
+            return
+        elif not isinstance(parent_value, (dict, list)):
             raise NotImplementedError()
 
         attribute_names = list(
@@ -35,12 +37,17 @@ def _values_from_openmm_system(
         if current_path[0] == "*":
             raise NotImplementedError()
 
+        expected_attribute_names = list(attribute_names)
+
         attribute_names = [
             i
             for attribute_name in attribute_names
             for i, item in enumerate(parent_value)
             if item["type"] == attribute_name
         ]
+
+        if len(attribute_names) == 0:
+            raise KeyError(f"{expected_attribute_names} not found")
 
     for attribute_name in attribute_names:
 
@@ -69,12 +76,22 @@ def _values_from_openmm_system(
 
 def values_from_openmm_system(
     openmm_system: Dict[str, Any],
-    openmm_path: str,
+    openmm_path: Optional[str],
+    deepdiff_path: Optional[str] = None,
 ) -> List[Tuple[str, Any]]:
     """Returns all the values from a dictionary representation of an OpenMM system
     (see ``load_openmm_system_as_dict``) that match a given 'selector' path
     (see ``deepdiff_path_to_openmm_path``).
     """
+
+    assert (openmm_path is None and deepdiff_path is not None) or (
+        openmm_path is not None and deepdiff_path is None
+    ), "exactly one of 'openmm_path' and 'deepdiff_path' must be specified"
+
+    if deepdiff_path is not None:
+        from deepdiff.path import extract
+
+        return [(deepdiff_path, extract(openmm_system, deepdiff_path))]
 
     openmm_path_split = openmm_path.strip("/").split("/")
     return [
@@ -227,8 +244,20 @@ def check_expected_value_changes(
 
     for expected_difference in expected_differences:
 
-        values_a = list(values_from_openmm_system(system_a, expected_difference.path))
-        values_b = list(values_from_openmm_system(system_b, expected_difference.path))
+        values_a = list(
+            values_from_openmm_system(
+                system_a,
+                expected_difference.openmm_path,
+                expected_difference.deepdiff_path,
+            )
+        )
+        values_b = list(
+            values_from_openmm_system(
+                system_b,
+                expected_difference.openmm_path,
+                expected_difference.deepdiff_path,
+            )
+        )
 
         assert len(values_a) > 0 and len(values_a) == len(values_b)
 
@@ -251,7 +280,13 @@ def check_expected_value_changes(
             if as_expected:
                 continue
 
-            missing_differences[expected_difference.path][old_path] = {
+            expected_path = (
+                expected_difference.openmm_path
+                if expected_difference.openmm_path
+                else expected_difference.deepdiff_path
+            )
+
+            missing_differences[expected_path][old_path] = {
                 "expected_old_value": expected_difference.old_value,
                 "old_value": old_value,
                 "expected_new_value": expected_difference.new_value,

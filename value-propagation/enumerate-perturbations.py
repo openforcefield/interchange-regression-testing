@@ -9,8 +9,10 @@ from rich import get_console, pretty
 from rich.console import NewLine
 from rich.padding import Padding
 
-from interchange_regression_utilities.perturb import enumerate_perturbations, \
-    default_perturbation
+from interchange_regression_utilities.perturb import (
+    default_perturbation,
+    enumerate_perturbations,
+)
 
 
 def perturbation_function(attribute_path: str, old_value: Any) -> Tuple[Any, bool]:

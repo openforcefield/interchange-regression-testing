@@ -15,10 +15,12 @@ def create_toolkit_0_10_x_to_0_11_x_changes():
 
     return [
         ExpectedValueChange(
-            path="Forces/NonbondedForce/useSwitchingFunction", old_value=0, new_value=1
+            openmm_path="Forces/NonbondedForce/useSwitchingFunction",
+            old_value=0,
+            new_value=1,
         ),
         ExpectedValueChange(
-            path="Forces/NonbondedForce/switchingDistance",
+            openmm_path="Forces/NonbondedForce/switchingDistance",
             old_value=-1.0,
             new_value=0.8,
         ),
@@ -34,10 +36,12 @@ def create_toolkit_0_11_x_to_interchange_0_2_xchanges():
 
     return [
         ExpectedValueChange(
-            path="Forces/NonbondedForce/useSwitchingFunction", old_value=1, new_value=0
+            openmm_path="Forces/NonbondedForce/useSwitchingFunction",
+            old_value=1,
+            new_value=0,
         ),
         ExpectedValueChange(
-            path="Forces/NonbondedForce/switchingDistance",
+            openmm_path="Forces/NonbondedForce/switchingDistance",
             old_value=0.8,
             new_value=-1,
         ),

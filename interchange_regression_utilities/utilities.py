@@ -1,10 +1,12 @@
 import functools
+import json
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from urllib.request import urlopen
 
 import packaging.version
+from deepdiff.model import PrettyOrderedSet
 from openff.utilities import MissingOptionalDependency, requires_package
 from rich.progress import (
     BarColumn,
@@ -14,6 +16,14 @@ from rich.progress import (
     TimeRemainingColumn,
     TransferSpeedColumn,
 )
+
+
+class DeepDiffEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, PrettyOrderedSet):
+            return [*obj]
+
+        return json.JSONEncoder.default(self, obj)
 
 
 def download_file(url: str, description: str, output_path: Path):

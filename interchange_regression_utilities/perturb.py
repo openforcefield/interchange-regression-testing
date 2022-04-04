@@ -90,14 +90,16 @@ def get_all_attributes():
 
 def default_perturbation(path: str, old_value: Any) -> Tuple[Any, bool]:
 
-    if isinstance(old_value, str) or old_value is None:
+    if path == "ConstraintHandler/Constraints/distance" and old_value is None:
+        new_value = 0.1234 * unit.angstrom
+    elif isinstance(old_value, str) or old_value is None:
         return None, False
+    else:
+        value_multiplier = (
+            old_value.units if isinstance(old_value, unit.Quantity) else 1.0
+        )
+        new_value = old_value + 1.0 * value_multiplier
 
-    value_multiplier = (
-        old_value.units if isinstance(old_value, unit.Quantity) else 1.0
-    )
-
-    new_value = old_value + 1.0 * value_multiplier
     return new_value, True
 
 
@@ -146,21 +148,22 @@ def enumerate_perturbations(
                 handler if len(attribute_path_split) == 2 else handler.parameters[0]
             )
 
+            default_to_none = False
+
             if attribute_type == "IndexedParameterAttribute":
 
-                if getattr(attribute_parent, attribute_name) is None:
-
-                    warning_messages.append(
-                        f"skipping {attribute_path} - array value is `None`"
-                    )
-                    continue
+                default_to_none = getattr(attribute_parent, attribute_name) is None
 
                 attribute_name = f"{attribute_name}1"
                 attribute_path = "/".join(
                     [handler_type, *parameter_types, attribute_name]
                 )
 
-            old_value = getattr(attribute_parent, attribute_name)
+            if default_to_none:
+                # Indexed attributes whose values are currently not set
+                old_value = None
+            else:
+                old_value = getattr(attribute_parent, attribute_name)
 
             if not use_openff_units():
 
