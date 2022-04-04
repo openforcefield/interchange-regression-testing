@@ -1,8 +1,7 @@
 import glob
-import json
+from collections import OrderedDict
 from copy import deepcopy
 from pprint import pprint
-from collections import OrderedDict
 
 import openmm
 import xmltodict
@@ -10,7 +9,6 @@ from deepdiff import DeepDiff
 from openff.toolkit import __version__
 from openff.toolkit.topology import *
 from openff.toolkit.typing.engines.smirnoff import *
-
 
 current_toolkit_version = __version__
 
@@ -31,13 +29,20 @@ def _correct_switching(diff):
     specification. Old versions (0.10.3 and older) of the OpenFF Toolkit did _not_ aply a switching
     function, but new versions (0.11.0 and newer) are intended to.
     """
-    if len(diff["values_changed"]) == 0:
+    try:
+        if len(diff["values_changed"]) == 0:
+            return
+    except KeyError:
         return
 
+    switching_function_key = None
     for key in diff["values_changed"]:
         if "useSwitchingFunction" in key:
             switching_function_key = key
             break
+
+    if not switching_function_key:
+        return
 
     switching_distance_key = switching_function_key.replace(
         "useSwitchingFunction", "switchingDistance"
@@ -128,7 +133,6 @@ def _tolerate_charges(diff):
     for key in tolerated_charges:
         del diff["values_changed"][key]
 
-
 number_systems_found = len(glob.glob("results/*/*/*/*xml"))
 
 for index in range(number_systems_found):
@@ -154,6 +158,6 @@ for index in range(number_systems_found):
     diff = DeepDiff(system1, system2, ignore_order=True, significant_digits=6)
     _correct_switching(diff)
     _tolerate_charges(diff)
-    print(f"{index:05}", len(diff))
+    print(f"{index:05}, ", len(diff))
     if len(diff) > 0:
         pprint(diff)

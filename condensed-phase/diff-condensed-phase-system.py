@@ -8,6 +8,7 @@ from openmm import XmlSerializer
 import xmltodict
 from deepdiff import DeepDiff
 from openff.toolkit.topology import *
+from openff.toolkit import __version__
 from openff.toolkit.typing.engines.smirnoff import *
 
 
@@ -37,7 +38,7 @@ for index in range(
         system1 = XmlSerializer.deserialize(_f1)
 
     with open(
-        f"results/condensed-phase-systems/toolkit-v0.10.1+38.gc95642b3/systems/{index}.xml",
+        f"results/condensed-phase-systems/toolkit-v{__version__}/systems/{index}.xml",
         "r",
     ) as f2:
         _f2 = f2.read()
@@ -51,3 +52,5 @@ for index in range(
         from openff.toolkit.tests.utils import compare_system_parameters
 
         compare_system_parameters(system1, system2)
+    else:
+        print(f"index {i} passed")
