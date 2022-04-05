@@ -1,0 +1,40 @@
+name: interchange-regression-testing
+
+channels:
+  - conda-forge
+  - openeye
+
+dependencies:
+    # Core
+  - python
+  - pip
+
+  - click
+  - rich
+
+  - pydantic
+  - numpy
+  - pyyaml
+
+  - openmm
+  - openeye-toolkits
+
+  - deepdiff
+  - xmltodict
+
+    # OpenFF Toolkit
+  - openff-forcefields
+  - openff-units >=0.1.5
+  - openff-utilities
+  - smirnoff99Frosst
+  - networkx
+  - python-constraint
+  - mdtraj
+  - cachetools
+  - cached-property
+
+    # OpenFF Interchange
+
+  - pip:
+      - git+https://github.com/openforcefield/openff-toolkit.git@topology-biopolymer-refactor
+      - git+https://github.com/openforcefield/openff-interchange.git

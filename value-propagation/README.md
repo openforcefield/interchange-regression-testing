@@ -1,55 +1,102 @@
-### Value propagation testing
+# Value Propagation
 
-> for every attribute of every built-in parameter handler (e.g. cutoff, v-site distance, bond length): an OpenMM system created using openff-2.0.0.offxml but with the attribute of the handler perturbed yields an OpenMM system with that value also modified, again to ensure that changes to parameter attributes are actually captured and its not just the default values that get passed through
+1. Create a conda environment containing both the OpenFF Toolkit and OpenFF Interchange
 
-In most cases, only the value of one attribute needs to be changed at a time. The propagation of these changed values can be tested by comparing the output OpenMM systems, written as XML, and compared via deepdiff
+```shell
+cd ..
+mamba env create --name interchange-regression-testing-latest --file environment-latest.yaml
+mamba activate interchange-regression-testing-latest
+python setup.py develop
+cd -
+```
 
-For each of the below attributes, tests ensure that
-* modifying their values produces an `openmm.System` that differs from the original
-* the corresponding value(s) in the `openmm.System` match the modified value(s)
+2. Export the current toolkit and interchange versions
 
-Included attributes
-* `vdWHandler.scale14`
-* `vdWHandler.cutoff`
-* `vdWHandler.switch_width`
-* `vdWHandler.vdWType.sigma`
-* `vdWHandler.vdWType.epsilon`
-* `ElectrostaticsHandler.scale14`
-* `BondHandler.BondType.length`
-* `BondHandler.BondType.k`
-* `AngleHandler.AngleType.angle`
-* `AngleHandler.AngleType.k`
-* `ConstraintType.distance`
-* `ProperTorsionType.k`
-* `ProperTorsionType.phase`
-* `ProperTorsionType.periodicity`
-* `ImproperTorsionType.k`
-* `ImproperTorsionType.phase`
-* `ImproperTorsionType.periodicity`
+```shell
+export TOOLKIT_VERSION=$(python -c "import openff.toolkit; print(openff.toolkit.__version__)")
+export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.interchange.__version__)")
+```
 
-# TODO
-* `VirtualSiteBondChargeType.distance`
-* `VirtualSiteMonovalentLonePairType.distance`
-* `VirtualSiteDivalentLonePairType.distance`
-* `VirtualSiteTrivalentLonePairType.distance`
-* `VirtualSiteBondChargeType.charge_increment`
-* `VirtualSiteMonovalentLonePairType.charge_increment`
-* `VirtualSiteDivalentLonePairType.charge_increment`
-* `VirtualSiteTrivalentLonePairType.charge_increment`
-* `VirtualSiteMonovalentLonePairType.inPlaneAngle`
-* `VirtualSiteMonovalentLonePairType.outOfPlaneAngle`
-* `VirtualSiteDivalentLonePairType.outOfPlaneAngle`
-* `VirtualSiteBondChargeType.sigma`
-* `VirtualSiteMonovalentLonePairType.sigma`
-* `VirtualSiteDivalentLonePairType.sigma`
-* `VirtualSiteTrivalentLonePairType.sigma`
-* `VirtualSiteBondChargeType.epsilon`
-* `VirtualSiteMonovalentLonePairType.epsilon`
-* `VirtualSiteDivalentLonePairType.epsilon`
-* `VirtualSiteTrivalentLonePairType.epsilon`
+## Regression Check
 
-For each of the below attributes, the OpenFF Toolkit version 0.10.x only supports one value and
-therefore no value propagation can be tested:
+*Check that changes to a force field propagate through to changes in an OpenMM system in the same way as a 
+previous version*
+
+3. Enumerate the fields of a SMIRNOFF force field that can be easily perturbed
+
+```shell
+python enumerate-perturbations.py --force-field "force-fields/minimal-force-field.offxml" \
+                                  --output      "perturbations/default-perturbations.json"
+```
+
+4. Define the topologies that the perturbed force field will be applied to
+
+```shell
+python create-perturbed-molecule-inputs.py
+```
+
+5. Create the perturbed OpenMM systems
+
+```shell
+create_openmm_systems --input         "perturbed-systems/input-topologies.json" \
+                      --output        "perturbed-systems" \
+                      --perturbations "perturbations/default-perturbations.json" \
+                      --using-toolkit \
+                      --n-procs 1
+                      
+create_openmm_systems --input         "perturbed-systems/input-topologies.json" \
+                      --output        "perturbed-systems" \
+                      --perturbations "perturbations/default-perturbations.json" \
+                      --using-interchange \
+                      --n-procs 1
+```
+
+5a. (optionally) create un-perturbed OpenMM systems:
+
+```shell
+create_openmm_systems --input         "perturbed-systems/input-topologies.json" \
+                      --output        "perturbed-systems" \
+                      --using-toolkit \
+                      --n-procs 1
+create_openmm_systems --input         "perturbed-systems/input-topologies.json" \
+                      --output        "perturbed-systems" \
+                      --using-interchange \
+                      --n-procs 1
+```
+
+6. Compare whether the legacy OpenFF toolkit and new OpenFF Interchange exporters agree on how values
+   should be propagated
+
+```shell
+compare_openmm_systems --input-dir-a "perturbed-systems/omm-systems-toolkit-$TOOLKIT_VERSION" \
+                       --input-dir-b "perturbed-systems/omm-systems-interchange-$INTERCHANGE_VERSION" \
+                       --output      "perturbed-systems-$TOOLKIT_VERSION-vs-interchange-$INTERCHANGE_VERSION.json" \
+                       --settings         "../openmm-system-parity/comparison-settings/default-comparison-settings.json" \
+                       --expected-changes "../openmm-system-parity/expected-changes/toolkit-0-11-x-to-interchange-0-2-x.json" \
+                       --n-procs     2
+```
+
+## Integration Check
+
+*Check that changes to a force field propagate through to changes in an OpenMM system*
+
+```shell
+python check-values-propagate.py --input  "force-fields/minimal-force-field.offxml" "CCO" \
+                                 --input  "force-fields/minimal-force-field.offxml" "N" \
+                                 --output "propagation-differences-toolkit-$TOOLKIT_VERSION.json" \
+                                 --using-toolkit
+                                 
+python check-values-propagate.py --input  "force-fields/minimal-force-field.offxml" "CCO" \
+                                 --input  "force-fields/minimal-force-field.offxml" "N" \
+                                 --output "propagation-differences-interchange-$INTERCHANGE_VERSION.json" \
+                                 --using-interchange
+```
+
+## Notes
+
+For each of the below attributes, the OpenFF Toolkit version 0.10.x only supports one value and therefore no value 
+propagation can be tested:
+
 * `vdWHandler.potential`
 * `vdWHandler.combining_rules`
 * `vdWHandler.scale12`
