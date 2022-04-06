@@ -22,5 +22,10 @@ dependencies:
   - deepdiff
   - xmltodict
 
-  - openff-toolkit-base
+  - openff-toolkit-base ==0.10.3
   - openff-interchange-base
+
+  # This is tagged to the merge commit that fits AM1-BCC ELF10 being used.
+  # It should produce an environment similar to a future 0.10.4 release
+  - pip:
+    - git+https://github.com/openforcefield/openff-toolkit.git@8533e71b7d3a8c88699f91b55a87d9d6ff92b795
