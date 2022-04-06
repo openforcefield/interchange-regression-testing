@@ -52,6 +52,9 @@ def _save_openmm_system(
 
         exception = None
 
+        if Path(output_path).is_file():
+            continue
+
         try:
             create_openmm_system(
                 topology_definition,
