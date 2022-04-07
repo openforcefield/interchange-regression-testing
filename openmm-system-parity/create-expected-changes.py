@@ -28,24 +28,7 @@ def create_toolkit_0_10_x_to_0_11_x_changes():
 
 
 def create_toolkit_0_11_x_to_interchange_0_2_xchanges():
-    """
-    PR #1198 introduces an intentional behavior change in order to follow the SMIRNOFF
-    specification. Old versions (0.10.3 and older) of the OpenFF Toolkit did _not_ aply
-    a switching function, but new versions (0.11.0 and newer) are intended to.
-    """
-
-    return [
-        ExpectedValueChange(
-            openmm_path="Forces/NonbondedForce/useSwitchingFunction",
-            old_value=1,
-            new_value=0,
-        ),
-        ExpectedValueChange(
-            openmm_path="Forces/NonbondedForce/switchingDistance",
-            old_value=0.8,
-            new_value=-1,
-        ),
-    ]
+    return list()
 
 
 @click.command()
