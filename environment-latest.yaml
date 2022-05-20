@@ -6,7 +6,7 @@ channels:
 
 dependencies:
     # Core
-  - python
+  - python =3.9
   - pip
 
   - click
@@ -30,11 +30,12 @@ dependencies:
   - networkx
   - python-constraint
   - mdtraj
+  - importlib_metadata
   - cachetools
   - cached-property
 
     # OpenFF Interchange
 
   - pip:
-      - git+https://github.com/openforcefield/openff-toolkit.git@topology-biopolymer-refactor
-      - git+https://github.com/openforcefield/openff-interchange.git@v0.2.0-alpha.3
+      - git+https://github.com/openforcefield/openff-toolkit.git@no-use-interchange-arg
+      - git+https://github.com/openforcefield/openff-interchange.git@v0.2.0-alpha.5

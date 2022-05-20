@@ -6,7 +6,7 @@ channels:
 
 dependencies:
     # Core
-  - python
+  - python =3.9
   - pip
 
   - click
@@ -22,5 +22,5 @@ dependencies:
   - deepdiff
   - xmltodict
 
-  - openff-toolkit =>0.10.4
+  - openff-toolkit-base =0.10.6
   - openff-interchange-base
