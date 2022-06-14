@@ -2,7 +2,7 @@
     <Author>The Open Force Field Initiative</Author>
     <Date>2021-08-16</Date>
     <VirtualSites version="0.3" exclusion_policy="parents">
-        <VirtualSite 
+        <VirtualSite
             smirks="[#6X3H1a:2]1:[#7X2a:1]:[#6X3H1a:3]:[#6X3a]:[#6X3a]:[#6X3a]1"
             sigma="1.0 * angstrom"
             epsilon="0.1 * mole**-1 * kilojoule"
@@ -79,6 +79,33 @@
             charge_increment1="0.1205*elementary_charge"
             charge_increment2="0.0*elementary_charge"
             charge_increment3="0.1205*elementary_charge"
+            name="EP"
+        />
+        <VirtualSite
+            smirks="[#6:2]~[#7X3:1](~[#6:4])~[#6:3]"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="TrivalentLonePair"
+            match="once"
+            distance="0.30*angstrom"
+            charge_increment1="0.1*elementary_charge"
+            charge_increment2="0.2*elementary_charge"
+            charge_increment3="0.3*elementary_charge"
+            charge_increment4="0.4*elementary_charge"
+            name="EP"
+        />
+        <VirtualSite
+            smirks="[#8:1]=[#6:2]-[#6:3]"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="MonovalentLonePair"
+            match="all_permutations"
+            distance="0.30*angstrom"
+            outOfPlaneAngle="0*degree"
+            inPlaneAngle="120*degree"
+            charge_increment1="0.2*elementary_charge"
+            charge_increment2="0.2*elementary_charge"
+            charge_increment3="0.2*elementary_charge"
             name="EP"
         />
     </VirtualSites>

@@ -18,12 +18,14 @@ def main():
     pretty.install(console)
 
     smiles = [
-        "O",
         "c1ccncc1",
         "CCCCC[Cl]",
         "CCCCC[Br]",
         "c1cc(ccc1Cl)Cl",
         "c1cc(ccc1Cl)Br",
+        "O",
+        "N(CC)(CC)CC",
+        "CCCC=O",
     ]
 
     topology_definitions = [
