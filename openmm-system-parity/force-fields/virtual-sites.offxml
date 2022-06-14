@@ -1,0 +1,72 @@
+<SMIRNOFF version="0.3" aromaticity_model="OEAroModel_MDL">
+    <Author>The Open Force Field Initiative</Author>
+    <Date>2021-08-16</Date>
+    <VirtualSites version="0.3" exclusion_policy="parents">
+        <VirtualSite 
+            smirks="[#6X3H1a:2]1:[#7X2a:1]:[#6X3H1a:3]:[#6X3a]:[#6X3a]:[#6X3a]1"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="DivalentLonePair"
+            match="once"
+            distance="0.2978966534137726 * angstrom"
+            outOfPlaneAngle="0.0 * degree"
+            inPlaneAngle="None"
+            charge_increment1="0.3333* elementary_charge"
+            charge_increment2="0.0 * elementary_charge"
+            charge_increment3="0.0 * elementary_charge"
+            name="EP"
+        />
+        <VirtualSite
+            smirks="[#6A:2]-[#35:1]"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="BondCharge"
+            match="all_permutations"
+            distance="1.5503674745559692 * angstrom"
+            outOfPlaneAngle="None"
+            inPlaneAngle="None"
+            charge_increment1="-0.08888* elementary_charge"
+            charge_increment2="0.0 * elementary_charge"
+            name="EP1"
+        />
+        <VirtualSite
+            smirks="[#6a:2]-[#35:1]"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="BondCharge"
+            match="all_permutations"
+            distance="1.5504544973373413 * angstrom"
+            outOfPlaneAngle="None"
+            inPlaneAngle="None"
+            charge_increment1="-0.07777* elementary_charge"
+            charge_increment2="0.0 * elementary_charge"
+            name="EP1"
+         />
+        <VirtualSite
+            smirks="[#6A:2]-[#17:1]"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="BondCharge"
+            match="all_permutations"
+            distance="1.450734257698059 * angstrom"
+            outOfPlaneAngle="None"
+            inPlaneAngle="None"
+            charge_increment1="-0.06666* elementary_charge"
+            charge_increment2="0.0 * elementary_charge"
+            name="EP1"
+        />
+        <VirtualSite
+            smirks="[#6a:2]-[#17:1]"
+            sigma="1.0 * angstrom"
+            epsilon="0.1 * mole**-1 * kilojoule"
+            type="BondCharge"
+            match="all_permutations"
+            distance="1.450487494468689 * angstrom"
+            outOfPlaneAngle="None"
+            inPlaneAngle="None"
+            charge_increment1="-0.05555* elementary_charge"
+            charge_increment2="0.0 * elementary_charge"
+            name="EP1"
+        />
+    </VirtualSites>
+</SMIRNOFF>
