@@ -42,7 +42,20 @@ create_openmm_systems --input  "xxx/input-topologies.json" \
                       --output "xxx" \
                       --using-toolkit \
                       --n-procs 10
-                      
+```
+
+Note that some tests (at least WBO and virtual sites) require extra force fields to be sent via the
+`--force-field` argument, which can accept a list of multiple files/names that the `ForceField`
+object is wired to find, i.e.
+```
+create_openmm_systems \
+    ...
+    --force-field "openff-2.0.0.offxml" \
+    --force-field "force-fields/foo.offxml" \
+    ...
+```
+
+```
 # Compare the OpenMM systems created using the legacy toolkit and new OpenFF Interchange
 # code
 compare_openmm_systems --input-dir-a "xxx/omm-systems-toolkit-$TOOLKIT_VERSION" \
