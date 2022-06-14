@@ -18,6 +18,7 @@ def main():
     pretty.install(console)
 
     smiles = [
+        "O",
         "c1ccncc1",
         "CCCCC[Cl]",
         "CCCCC[Br]",
