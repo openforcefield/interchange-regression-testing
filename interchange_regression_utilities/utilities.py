@@ -116,7 +116,7 @@ def capture_toolkit_warnings():  # pragma: no cover
 def use_openff_units() -> bool:
     from openff.toolkit import __version__ as toolkit_version
 
-    if packaging.version.parse(toolkit_version) >= packaging.version.parse("0.11.0"):
+    if packaging.version.parse(toolkit_version) >= packaging.version.parse("0.11.0a0"):
         return True
 
     if "+" in toolkit_version:
