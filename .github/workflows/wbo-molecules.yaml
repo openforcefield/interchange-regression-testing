@@ -26,6 +26,9 @@ jobs:
           - "3.9"
           - "3.10"
 
+    env:
+      OE_LICENSE: ${{ github.workspace }}/oe_license.txt
+
     steps:
     - uses: actions/checkout@v2
 
