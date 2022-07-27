@@ -36,7 +36,7 @@ jobs:
         mamba-version: "*"
         channels: conda-forge,defaults
         channel-priority: true
-        environment-file: environment-latest.yaml
+        environment-file: environment-stable.yaml
         auto-activate-base: false
 
     - name: Install package
