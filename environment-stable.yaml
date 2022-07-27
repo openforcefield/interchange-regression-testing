@@ -6,7 +6,7 @@ channels:
 
 dependencies:
     # Core
-  - python =3.9
+  - python
   - pip
 
   - click
