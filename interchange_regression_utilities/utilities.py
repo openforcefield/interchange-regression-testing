@@ -126,3 +126,7 @@ def use_openff_units() -> bool:
         else:
             # Pre-release versions of 0.11.x are tagged as 0.10.1.g+ ... due to git history
             return True
+
+    raise Exception(
+        f"Could not decide which unit solution to use while parsing toolkit version {toolkit_version}"
+    )

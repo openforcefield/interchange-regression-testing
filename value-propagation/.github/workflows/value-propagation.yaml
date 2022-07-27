@@ -1,0 +1,67 @@
+name: Value propagation tests
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+
+jobs:
+  test:
+    name: Value propagation tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        activate-environment: interchange-regression-testing
+        mamba-version: "*"
+        channels: conda-forge,defaults
+        channel-priority: true
+        environment-file: environment-latest.yaml
+        auto-activate-base: false
+
+    - name: Install package
+      run: |
+        python setup.py develop --no-deps
+
+    - name: Environment Information
+      run: |
+        conda info
+        conda list
+
+    - name: Store versions
+      run: |
+        export TOOLKIT_VERSION=$(python -c "import openff.toolkit; print(openff.toolkit.__version__)")
+        export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.interchange.__version__)")
+
+    - name: Run value propagation tests
+      run: |
+        cd value-propagation
+
+        python enumerate-perturbations.py \
+          --force-field "force-fields/minimal-force-field.offxml" \
+          --output      "perturbations/default-perturbations.json"
+
+        python create-perturbed-molecule-inputs.py
+
+        python check-values-propagate.py \
+          --input  "force-fields/minimal-force-field.offxml" "CCO" \
+          --input  "force-fields/minimal-force-field.offxml" "N" \
+          --output "propagation-differences-interchange-$INTERCHANGE_VERSION.json" \
+          --using-interchange
