@@ -15,7 +15,7 @@ defaults:
 
 jobs:
   test:
-    name: Value propagation tests
+    name: WBO tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -48,16 +48,54 @@ jobs:
         conda info
         conda list
 
-    - name: Check versions
+    - name: Store toolkit version from stable environment
       run: |
-        python -c "import openff.toolkit; print(openff.toolkit.__version__)"
-        python -c "import openff.interchange; print(openff.interchange.__version__)"
+        export TOOLKIT_VERSION=$(python -c "import openff.toolkit; print(openff.toolkit.__version__)")
+
+    - name: Create default comparison settings and expected changes
+      run: |
+        cd openmm-system-parity
+        python create-comparison-settings.py
+        python create-expected-changes.py
+
+    - name: Create input topologies
+      run: |
+        python create-wbo-molecule-inputs.py
+
+    - name: Create systems using stable environment
+      run: |
+        create_openmm_systems \
+          --input "wbo-molecule/input-topologies.json" \
+          --output "wbo-molecule" \
+          --force-field "openff-2.0.0.offxml" \
+          --force-field "force-fields/wbo.offxml" \
+          --using-toolkit \
+          --n-procs 1
 
     - name: Upgrade environment to bleeding edge
       run: |
-        mamba env update --file environment-latest.yaml
+        mamba env update --file ../environment-latest.yaml
 
-    - name: Check versions
+    - name: Store Interchange version from stable environment
       run: |
-        python -c "import openff.toolkit; print(openff.toolkit.__version__)"
-        python -c "import openff.interchange; print(openff.interchange.__version__)"
+        export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.interchange.__version__)")
+
+    - name: Create systems using stable environment
+      run: |
+        create_openmm_systems \
+          --input "wbo-molecule/input-topologies.json" \
+          --output "wbo-molecule" \
+          --force-field "openff-2.0.0.offxml" \
+          --force-field "force-fields/wbo.offxml" \
+          --using-interchange \
+          --n-procs 1
+
+    - name: Create systems using stable environment
+      run: |
+        compare_openmm_systems \
+          --input-dir-a "wbo-molecule/omm-systems-toolkit-$TOOLKIT_VERSION" \
+          --input-dir-b "wbo-molecule/omm-systems-interchange-$INTERCHANGE_VERSION" \
+          --output      "wbo-molecule-toolkit-$TOOLKIT_VERSION-vs-interchange-$INTERCHANGE_VERSION.json" \
+          --settings    "comparison-settings/default-comparison-settings.json" \
+          --expected-changes "expected-changes/toolkit-0-11-x-to-interchange-0-2-x.json" \
+          --n-procs     2
