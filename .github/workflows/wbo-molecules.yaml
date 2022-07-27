@@ -79,6 +79,8 @@ jobs:
 
     - name: Create systems using stable environment
       run: |
+        pwd
+        ls
         create_openmm_systems \
           --input "wbo-molecule/input-topologies.json" \
           --output "wbo-molecule" \
