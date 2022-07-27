@@ -52,14 +52,11 @@ jobs:
       run: |
         export TOOLKIT_VERSION=$(python -c "import openff.toolkit; print(openff.toolkit.__version__)")
 
-    - name: Create default comparison settings and expected changes
+    - name: Create default comparison settings, expected changes, and input topologies
       run: |
         cd openmm-system-parity
         python create-comparison-settings.py
         python create-expected-changes.py
-
-    - name: Create input topologies
-      run: |
         python create-wbo-molecule-inputs.py
 
     - name: Create systems using stable environment
