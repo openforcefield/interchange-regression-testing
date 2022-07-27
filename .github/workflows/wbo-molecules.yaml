@@ -48,6 +48,14 @@ jobs:
         conda info
         conda list
 
+    - name: License OpenEye
+      if: ${{ matrix.openeye == true }}
+      run: |
+        echo "${SECRET_OE_LICENSE}" > ${OE_LICENSE}
+        python -c "from openeye import oechem; assert oechem.OEChemIsLicensed()"
+      env:
+        SECRET_OE_LICENSE: ${{ secrets.OE_LICENSE }}
+
     - name: Store toolkit version from stable environment
       run: |
         export TOOLKIT_VERSION=$(python -c "import openff.toolkit; print(openff.toolkit.__version__)")
