@@ -61,6 +61,8 @@ jobs:
 
     - name: Create systems using stable environment
       run: |
+        pwd
+        ls
         create_openmm_systems \
           --input "wbo-molecule/input-topologies.json" \
           --output "wbo-molecule" \
@@ -77,7 +79,7 @@ jobs:
       run: |
         export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.interchange.__version__)")
 
-    - name: Create systems using stable environment
+    - name: Create systems using latest environment
       run: |
         pwd
         ls
@@ -89,7 +91,7 @@ jobs:
           --using-interchange \
           --n-procs 1
 
-    - name: Create systems using stable environment
+    - name: Compare systems
       run: |
         compare_openmm_systems \
           --input-dir-a "wbo-molecule/omm-systems-toolkit-$TOOLKIT_VERSION" \
