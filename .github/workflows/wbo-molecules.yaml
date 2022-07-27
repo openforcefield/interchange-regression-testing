@@ -61,6 +61,7 @@ jobs:
 
     - name: Create systems using stable environment
       run: |
+        cd openmm-system-parity
         pwd
         ls
         create_openmm_systems \
@@ -73,10 +74,16 @@ jobs:
 
     - name: Upgrade environment to bleeding edge
       run: |
+        cd openmm-system-parity
+        pwd
+        ls
         mamba env update --file ../environment-latest.yaml
 
     - name: Store Interchange version from stable environment
       run: |
+        cd openmm-system-parity
+        pwd
+        ls
         export INTERCHANGE_VERSION=$(python -c "import openff.interchange; print(openff.interchange.__version__)")
 
     - name: Create systems using latest environment
@@ -93,6 +100,9 @@ jobs:
 
     - name: Compare systems
       run: |
+        cd openmm-system-parity
+        pwd
+        ls
         compare_openmm_systems \
           --input-dir-a "wbo-molecule/omm-systems-toolkit-$TOOLKIT_VERSION" \
           --input-dir-b "wbo-molecule/omm-systems-interchange-$INTERCHANGE_VERSION" \
