@@ -49,7 +49,6 @@ jobs:
         conda list
 
     - name: License OpenEye
-      if: ${{ matrix.openeye == true }}
       run: |
         echo "${SECRET_OE_LICENSE}" > ${OE_LICENSE}
         python -c "from openeye import oechem; assert oechem.OEChemIsLicensed()"
