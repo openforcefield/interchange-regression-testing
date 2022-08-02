@@ -48,6 +48,7 @@ jobs:
 
     - name: Environment Information
       run: |
+        which python
         conda info
         conda list
 
