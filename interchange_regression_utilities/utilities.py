@@ -119,9 +119,12 @@ def use_openff_units() -> bool:
     if packaging.version.parse(toolkit_version) >= packaging.version.parse("0.11.0a0"):
         return True
 
+    if toolkit_version == "0.10.6":
+        return False
+
     if "+" in toolkit_version:
         # This version should be similar to 0.10.4 but is yet to be released
-        if toolkit_version in ["0.10.6", "0.10.3+5.g8533e71b"]:
+        if toolkit_version in ["0.10.3+5.g8533e71b"]:
             return False
         else:
             # Pre-release versions of 0.11.x are tagged as 0.10.1.g+ ... due to git history
