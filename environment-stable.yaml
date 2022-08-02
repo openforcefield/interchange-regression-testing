@@ -24,3 +24,4 @@ dependencies:
 
   - openff-toolkit-base =0.10.6
   - openff-utilities
+  - openff-units
