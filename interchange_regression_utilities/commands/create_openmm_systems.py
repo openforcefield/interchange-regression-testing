@@ -9,7 +9,6 @@ from typing import Dict, List, Optional, Tuple
 import click
 import rich
 from click.exceptions import Exit
-from openff.interchange import __version__ as interchange_version
 from openff.toolkit import __version__ as toolkit_version
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.toolkit.utils.exceptions import OpenFFToolkitException
@@ -26,6 +25,10 @@ from interchange_regression_utilities.models import (
     model_from_file,
 )
 
+try:
+    from openff.interchange import __version__ as interchange_version
+except ImportError:
+    interchange_version = None
 
 def _save_openmm_system(
     topology_definition: TopologyDefinition,

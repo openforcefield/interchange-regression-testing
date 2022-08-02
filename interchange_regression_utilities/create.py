@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional, Union
 
 import openmm
-from openff.interchange.components.interchange import Interchange
 from openff.toolkit.topology import Topology
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.units import unit
@@ -70,6 +69,9 @@ def create_openmm_system(
     definition optionally, using OpenFF Interchange rather than via the OpenFF Toolkit
     legacy exporter.
     """
+    if using_interchange:
+        from openff.interchange.components.interchange import Interchange
+
 
     with capture_toolkit_warnings():
 
