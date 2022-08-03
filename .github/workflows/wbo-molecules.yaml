@@ -118,8 +118,8 @@ jobs:
         ls wbo-molecule/
         compare_openmm_systems \
           --input-dir-a "wbo-molecule/omm-systems-toolkit-0.10.6" \
-          --input-dir-b "wbo-molecule/omm-systems-interchange-0.2.0rc2" \
-          --output      "wbo-molecule-toolkit-0.10.6-vs-interchange-0.2.0rc2" \
+          --input-dir-b "wbo-molecule/omm-systems-interchange-v0.2.0rc.2" \
+          --output      "wbo-molecule-toolkit-0.10.6-vs-interchange-v0.2.0rc.2" \
           --settings    "comparison-settings/default-comparison-settings.json" \
           --expected-changes "expected-changes/toolkit-0-11-x-to-interchange-0-2-x.json" \
           --n-procs     2
