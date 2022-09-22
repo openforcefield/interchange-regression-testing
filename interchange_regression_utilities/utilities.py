@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 import packaging.version
 from deepdiff.model import PrettyOrderedSet
-from openff.utilities import MissingOptionalDependency, requires_package
+from openff.utilities import MissingOptionalDependencyError, requires_package
 from rich.progress import (
     BarColumn,
     DownloadColumn,
@@ -107,7 +107,7 @@ def capture_toolkit_warnings():  # pragma: no cover
     try:
         with _oe_capture_warnings():
             yield
-    except MissingOptionalDependency:
+    except MissingOptionalDependencyError:
         yield
 
     logging.getLogger("openff.toolkit").setLevel(openff_logger_level)
