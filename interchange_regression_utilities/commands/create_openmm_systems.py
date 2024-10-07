@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import click
+import pydantic
 import rich
 from click.exceptions import Exit
 from openff.toolkit import __version__ as toolkit_version
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openff.toolkit.utils.exceptions import OpenFFToolkitException
-from pydantic import parse_file_as
 from rich import pretty
 from rich.console import NewLine
 from rich.padding import Padding

@@ -24,6 +24,11 @@ def create_toolkit_0_10_x_to_0_11_x_changes():
             old_value=-1.0,
             new_value=0.8,
         ),
+        ExpectedValueChange(
+            openmm_path="Forces/NonbondedForce/name",
+            old_value="NonbondedForce",
+            new_value="Nonbonded force",
+        ),
     ]
 
 

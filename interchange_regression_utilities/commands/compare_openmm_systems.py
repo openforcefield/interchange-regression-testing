@@ -204,6 +204,7 @@ def main(
             )
         )
 
+        # https://github.com/pydantic/pydantic/discussions/8568
         with output_path.open("w") as file:
             json.dump(system_differences, file, cls=DeepDiffEncoder)
 

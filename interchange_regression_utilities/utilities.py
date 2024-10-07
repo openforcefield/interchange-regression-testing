@@ -6,7 +6,6 @@ from tempfile import NamedTemporaryFile
 from urllib.request import urlopen
 
 import packaging.version
-from deepdiff.model import PrettyOrderedSet
 from openff.utilities import MissingOptionalDependencyError, requires_package
 from rich.progress import (
     BarColumn,
@@ -20,8 +19,8 @@ from rich.progress import (
 
 class DeepDiffEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, PrettyOrderedSet):
-            return [*obj]
+        if isinstance(obj, type):
+            return {"type": str(obj)}
 
         return json.JSONEncoder.default(self, obj)
 

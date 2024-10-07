@@ -108,7 +108,7 @@ class TopologyDefinition(CommonModel):
 
     name: str = Field(..., description="A unique name to give to the system.")
 
-    components: conlist(TopologyComponent, min_items=1) = Field(
+    components: conlist(TopologyComponent, min_length=1) = Field(
         ..., description="The components to add to the topology."
     )
     is_periodic: bool = Field(
