@@ -1,4 +1,4 @@
-name: interchange-regression-testing
+name: interchange-regression-testing-latest
 
 channels:
   - conda-forge/label/openff-toolkit_rc
@@ -8,7 +8,7 @@ channels:
 
 dependencies:
     # Core
-  - python
+  - python =3.10
   - pip
 
   - click
@@ -24,5 +24,5 @@ dependencies:
   - deepdiff
   - xmltodict
 
-  - openff-toolkit >=0.11.0rc3
-  - openff-interchange >=0.2.0rc2
+  - openff-toolkit >=0.11.0
+  - openff-interchange >=0.3.29

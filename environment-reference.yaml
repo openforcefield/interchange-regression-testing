@@ -1,4 +1,4 @@
-name: interchange-regression-testing
+name: interchange-regression-testing-reference
 
 channels:
   - conda-forge
@@ -6,7 +6,7 @@ channels:
 
 dependencies:
     # Core
-  - python
+  - python =3.10
   - pip
 
   - click
