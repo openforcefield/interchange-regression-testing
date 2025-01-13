@@ -8,7 +8,7 @@ import xmltodict
 _INDEX_REGEX = re.compile(r"^p\d+$")
 
 
-def openmm_system_xml_postprocessor(_, key, value):
+def openmm_system_xml_postprocessor(_, key, value) -> tuple:
 
     if key.startswith("@"):
         key = key[1:]  # Drop the @ prefix for attributes.
@@ -48,6 +48,9 @@ def openmm_system_xml_postprocessor(_, key, value):
         # Sort the forces into a most likely deterministic order.
         assert len({(v["type"], v["name"]) for v in value}) == len(value)
         value = sorted(value, key=lambda v: (v["type"], v["name"]))
+
+        # Drop CMMMotionRemover
+        value = [v for v in value if v["type"] != "CMMotionRemover"]
 
     return key, value
 
