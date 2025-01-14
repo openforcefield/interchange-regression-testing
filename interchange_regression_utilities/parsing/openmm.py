@@ -13,6 +13,12 @@ def openmm_system_xml_postprocessor(_, key, value) -> tuple:
     if key.startswith("@"):
         key = key[1:]  # Drop the @ prefix for attributes.
 
+    # openmm doesn't strictly follow semantic versioning; version is parsed as a float if MICRO is
+    # missing as is the case with version 8.2 (i.e. not 8.2.0)
+    if key == "openmmVersion":
+        if value == "8.2":
+            value = "8.2.0"
+
     try:
         # Try to guess the numeric type of number looking values
         value = int(value) if "." not in value else float(value)
