@@ -5,7 +5,23 @@ from typing import Any, Dict, OrderedDict
 import openmm
 import xmltodict
 
+from packaging.version import Version
+
 _INDEX_REGEX = re.compile(r"^p\d+$")
+
+
+def add_explicit_zero_micro_version(openmm_version: str) -> str:
+    """
+    Explicitly add a micro version of ".0" when implicit.
+
+    OpenMM might report version numbers as 8.2 or 8.4, but these are parsed as floats
+    in JSON files whereas versions with non-zero patch versions are parsed as string.
+
+    For example, "8.2" -> "8.2.0", just as "8.2.1" -> "8.2.1"
+    """
+    version = Version(openmm_version)
+
+    return ".".join([str(x) for x in (version.major, version.minor, version.micro)])
 
 
 def openmm_system_xml_postprocessor(_, key, value) -> tuple:
@@ -13,11 +29,8 @@ def openmm_system_xml_postprocessor(_, key, value) -> tuple:
     if key.startswith("@"):
         key = key[1:]  # Drop the @ prefix for attributes.
 
-    # openmm doesn't strictly follow semantic versioning; version is parsed as a float if MICRO is
-    # missing as is the case with version 8.2 (i.e. not 8.2.0)
     if key == "openmmVersion":
-        if value == "8.2":
-            value = "8.2.0"
+        value = add_explicit_zero_micro_version(value)
 
     try:
         # Try to guess the numeric type of number looking values
